@@ -1,6 +1,21 @@
 package com.googleSearch.test_googleSearch;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,17 +27,45 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FindImageJSoup {
 
-
 	private static Log logger = Log.getInstance().getLogger();
 
 	private String searchName = null;
     
+	// Saltar el certificado del proxy
+	static{
+		try{
+			TrustManager[] trustAllCerts = { new X509TrustManager() {
+
+				@Override
+				public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+				@Override
+				public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)throws CertificateException {}
+
+				@Override
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+			} };
+			SSLContext sc = SSLContext.getInstance("SSL");
+			
+			HostnameVerifier hv = new HostnameVerifier() {
+				public boolean verify(String arg0, SSLSession arg1) {
+					return true;
+				}
+			};
+			sc.init(null, trustAllCerts, new SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			HttpsURLConnection.setDefaultHostnameVerifier(hv);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	public FindImageJSoup(String searchName) {
 		this.searchName = searchName;
 	}
 
 	public ArrayList<FindResult> findImage(String question, String questionMods, String ua, int numResults, Integer width, Integer height, 
-			Float sizeMargin, Integer widthMargin, Integer heightMargin) {
+			Float sizeMargin, Integer widthMargin, Integer heightMargin, String proxyHost, Integer proxyPort) {
 		
 		ArrayList<FindResult> findResults = null;
 		String googleUrl=null;
@@ -76,7 +119,23 @@ public class FindImageJSoup {
 				if (page>0) {
 					fullUrl+="&ijn="+page+"&start="+(page*100);
 				}
-				doc=Jsoup.connect(fullUrl).userAgent(ua).timeout(100 * 1000).get();
+				
+				if (proxyHost!=null && proxyPort!=null) {
+					URL url = new URL(fullUrl);
+					Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+					HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
+					uc.connect();
+					String line = null;
+					StringBuffer tmp = new StringBuffer();
+					BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+					while ((line = in.readLine()) != null) {
+						tmp.append(line);
+					}
+					doc = Jsoup.parse(String.valueOf(tmp));
+				} else {
+					doc=Jsoup.connect(fullUrl).userAgent(ua).timeout(100 * 1000).get();
+				}
+				
 	//			System.out.println("---------------\n"+doc+"\n---------------\n");
 				media=doc.select("div.rg_meta"); // notranslate");
 				

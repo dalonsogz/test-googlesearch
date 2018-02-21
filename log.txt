@@ -20001,3 +20001,51 @@ size(type):[640x908](jpg)
 imageURL:https://i.pinimg.com/736x/d2/e3/25/d2e325e843d3e9ed773b5acb13b3727f--xbox-games-video-games.jpg
 24-09-2017 13:43:20 DEBUG - ---------------
 
+21-02-2018 11:35:40 INFO  - Application starting...
+21-02-2018 11:39:06 INFO  - Application starting...
+21-02-2018 11:44:08 INFO  - Application starting...
+21-02-2018 11:45:10 INFO  - Application starting...
+21-02-2018 11:47:36 INFO  - Application starting...
+21-02-2018 11:47:44 INFO  - Application started
+21-02-2018 11:56:23 INFO  - Application starting...
+21-02-2018 11:56:24 INFO  - Application started
+21-02-2018 11:58:33 INFO  - Application starting...
+21-02-2018 11:58:35 INFO  - Application started
+21-02-2018 11:59:23 INFO  - Application starting...
+21-02-2018 11:59:24 INFO  - Application started
+21-02-2018 11:59:37 DEBUG - Search string: 'God of War'
+21-02-2018 11:59:37 DEBUG - question:God of War
+21-02-2018 11:59:37 DEBUG - ---------------
+21-02-2018 11:59:37 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=God+of+War+PS2+cover
+21-02-2018 12:23:01 INFO  - Application starting...
+21-02-2018 12:23:02 INFO  - Application started
+21-02-2018 12:23:17 DEBUG - Search string: 'Ico'
+21-02-2018 12:23:17 DEBUG - question:Ico
+21-02-2018 12:23:17 DEBUG - ---------------
+21-02-2018 12:23:17 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Ico+PS2+cover
+21-02-2018 12:24:46 INFO  - Application starting...
+21-02-2018 12:24:47 INFO  - Application started
+21-02-2018 12:24:53 DEBUG - Search string: 'Okami'
+21-02-2018 12:24:53 DEBUG - question:Okami
+21-02-2018 12:24:53 DEBUG - ---------------
+21-02-2018 12:24:53 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Okami+PS2+cover
+21-02-2018 12:26:22 INFO  - Application starting...
+21-02-2018 12:26:23 INFO  - Application started
+21-02-2018 12:26:30 DEBUG - Search string: 'God of War'
+21-02-2018 12:26:30 DEBUG - question:God of War
+21-02-2018 12:26:30 DEBUG - ---------------
+21-02-2018 12:26:30 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=God+of+War+PS2+cover
+21-02-2018 12:30:56 INFO  - Application starting...
+21-02-2018 12:33:21 INFO  - Application started
+21-02-2018 12:51:14 INFO  - Application starting...
+21-02-2018 12:52:10 INFO  - Application started
+21-02-2018 12:52:16 DEBUG - Search string: 'Okami'
+21-02-2018 12:52:17 DEBUG - question:Okami
+21-02-2018 12:52:17 DEBUG - ---------------
+21-02-2018 12:52:17 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Okami+PS2+cover
+21-02-2018 12:54:12 INFO  - Application starting...
+21-02-2018 12:54:13 INFO  - Application started
+21-02-2018 12:54:15 DEBUG - Search string: 'Shadow of the Colossus'
+21-02-2018 12:54:16 DEBUG - question:Shadow of the Colossus
+21-02-2018 12:54:16 DEBUG - ---------------
+21-02-2018 12:54:16 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Shadow+of+the+Colossus+PS2+cover
