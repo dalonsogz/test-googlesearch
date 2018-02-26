@@ -1040,7 +1040,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 					FindImageJSoup fij = new FindImageJSoup(searchString);
 					logger.debug("question:"+ question);
 			       	ArrayList<FindResult> findResults = fij.findImage(question,searchMods, userAgent,numResults,widthParam,heightParam,
-			       			sizeMarginParam,widthMarginParam,heightMarginParam,proxyHost,Integer.parseInt(proxyPort));
+			       			sizeMarginParam,widthMarginParam,heightMarginParam,
+			       			proxyHost,(proxyPort!=null&&!proxyPort.isEmpty())?Integer.parseInt(proxyPort):null);
 //			       	Util.writeSerializaedObject(findResults, "findResults");
 //			       	ArrayList<FindResult> findResults = (ArrayList<FindResult>)Util.readSerializedObject("findResults");
 //					

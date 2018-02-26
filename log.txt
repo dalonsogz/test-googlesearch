@@ -20049,3 +20049,239 @@ imageURL:https://i.pinimg.com/736x/d2/e3/25/d2e325e843d3e9ed773b5acb13b3727f--xb
 21-02-2018 12:54:16 DEBUG - question:Shadow of the Colossus
 21-02-2018 12:54:16 DEBUG - ---------------
 21-02-2018 12:54:16 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Shadow+of+the+Colossus+PS2+cover
+26-02-2018 13:06:08 INFO  - Application starting...
+26-02-2018 13:06:08 INFO  - Application started
+26-02-2018 13:08:37 INFO  - Application starting...
+26-02-2018 13:08:38 INFO  - Application started
+26-02-2018 13:08:55 INFO  - Application starting...
+26-02-2018 13:08:55 INFO  - Application started
+26-02-2018 13:08:59 DEBUG - Search string: 'Shadow of the Colossus'
+26-02-2018 13:08:59 DEBUG - question:Shadow of the Colossus
+26-02-2018 13:09:07 DEBUG - Search string: 'Okami'
+26-02-2018 13:09:07 DEBUG - question:Okami
+26-02-2018 13:09:21 DEBUG - Search string: 'Ico'
+26-02-2018 13:09:21 DEBUG - question:Ico
+26-02-2018 13:11:25 INFO  - Application starting...
+26-02-2018 13:11:25 INFO  - Application started
+26-02-2018 13:11:52 INFO  - Application starting...
+26-02-2018 13:11:52 INFO  - Application started
+26-02-2018 13:11:56 DEBUG - Search string: 'Okami'
+26-02-2018 13:11:56 DEBUG - question:Okami
+26-02-2018 13:12:49 INFO  - Application starting...
+26-02-2018 13:12:50 INFO  - Application started
+26-02-2018 13:12:52 DEBUG - Search string: 'Okami'
+26-02-2018 13:12:52 DEBUG - question:Okami
+26-02-2018 13:12:52 DEBUG - ---------------
+26-02-2018 13:12:52 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Okami+PS2+cover
+26-02-2018 13:12:54 DEBUG - title:Descargar Okami PS2
+description:Descargar Okami PS2
+size(type):[215x300](jpg)
+imageURL:https://www.gamesgx.net/pbprbavr/okami.jpg
+26-02-2018 13:12:54 DEBUG - title:Okami box art cover
+description:Okami box art cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5123-okami.jpg?t=1163289849
+26-02-2018 13:12:54 DEBUG - title:Okami box art cover
+description:Okami box art cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5124-okami.jpg
+26-02-2018 13:12:54 DEBUG - title:Okami Amaterasu Which cover do tu like better? Okami PS2 versions cover o Okami Wii versions cover?
+description:Okami Amaterasu Which cover do tu like better? Okami PS2 versions cover o Okami Wii versions cover?
+size(type):[321x489](jpg)
+imageURL:http://images2.fanpop.com/image/polls/371000/371900_1265384696948_full.jpg?v=1265384722
+26-02-2018 13:12:54 DEBUG - title:Okami - PS2 - NTSC-J (Japan)
+description:Okami - PS2 - NTSC-J (Japan)
+size(type):[347x500](png)
+imageURL:https://i.neoseeker.com/boxshots/R2FtZXMvUGxheXN0YXRpb25fMi9BY3Rpb24vQWR2ZW50dXJl/okami_frontcover_large_EHsSxzn9HhVSC7w.png
+26-02-2018 13:12:54 DEBUG - title:Okami box cover
+description:Okami box cover
+size(type):[320x473](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/4440-okami.jpg
+26-02-2018 13:12:54 DEBUG - title:Kingdom Hearts II (PS2)
+description:Kingdom Hearts II (PS2)
+size(type):[224x320](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/51VK2FCKJHL._AC_UL320_SR224,320_.jpg
+26-02-2018 13:12:54 DEBUG - title:
+description:
+size(type):[800x1085](png)
+imageURL:http://skirmishfrogs.com/wp-content/uploads/2015/11/okami_cover_art_by_sweetest0perfection-d5v7ce5.png
+26-02-2018 13:12:54 DEBUG - title:
+description:
+size(type):[720x1080](jpg)
+imageURL:http://www.mobygames.com/images/covers/l/441154-okami-xbox-one-front-cover.jpg
+26-02-2018 13:12:54 DEBUG - title:Okami - Standard Edition
+description:Okami - Standard Edition
+size(type):[342x434](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/81g-uF%2BXDeL._SX342_.jpg
+26-02-2018 13:12:54 DEBUG - title:Detalles de Okami HD
+description:Detalles de Okami HD
+size(type):[497x576](jpg)
+imageURL:https://k32.kn3.net/540E9CAB5.jpg
+26-02-2018 13:12:54 DEBUG - title:Persona 4 (PS2) [Importación inglesa]
+description:Persona 4 (PS2) [Importación inglesa]
+size(type):[315x445](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/91fc4SvMR9L._SY445_.jpg
+26-02-2018 13:12:54 DEBUG - ---------------
+
+26-02-2018 13:13:18 DEBUG - Search string: 'Okami'
+26-02-2018 13:13:18 DEBUG - question:Okami
+26-02-2018 13:13:18 DEBUG - ---------------
+26-02-2018 13:13:18 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Okami+PS2+cover
+26-02-2018 13:13:19 DEBUG - title:Descargar Okami PS2
+description:Descargar Okami PS2
+size(type):[215x300](jpg)
+imageURL:https://www.gamesgx.net/pbprbavr/okami.jpg
+26-02-2018 13:13:19 DEBUG - title:Okami box art cover
+description:Okami box art cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5123-okami.jpg?t=1163289849
+26-02-2018 13:13:19 DEBUG - title:Okami box art cover
+description:Okami box art cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5124-okami.jpg
+26-02-2018 13:13:19 DEBUG - title:Okami Amaterasu Which cover do tu like better? Okami PS2 versions cover o Okami Wii versions cover?
+description:Okami Amaterasu Which cover do tu like better? Okami PS2 versions cover o Okami Wii versions cover?
+size(type):[321x489](jpg)
+imageURL:http://images2.fanpop.com/image/polls/371000/371900_1265384696948_full.jpg?v=1265384722
+26-02-2018 13:13:19 DEBUG - title:Okami - PS2 - NTSC-J (Japan)
+description:Okami - PS2 - NTSC-J (Japan)
+size(type):[347x500](png)
+imageURL:https://i.neoseeker.com/boxshots/R2FtZXMvUGxheXN0YXRpb25fMi9BY3Rpb24vQWR2ZW50dXJl/okami_frontcover_large_EHsSxzn9HhVSC7w.png
+26-02-2018 13:13:19 DEBUG - title:Okami box cover
+description:Okami box cover
+size(type):[320x473](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/4440-okami.jpg
+26-02-2018 13:13:19 DEBUG - title:Kingdom Hearts II (PS2)
+description:Kingdom Hearts II (PS2)
+size(type):[224x320](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/51VK2FCKJHL._AC_UL320_SR224,320_.jpg
+26-02-2018 13:13:19 DEBUG - title:
+description:
+size(type):[800x1085](png)
+imageURL:http://skirmishfrogs.com/wp-content/uploads/2015/11/okami_cover_art_by_sweetest0perfection-d5v7ce5.png
+26-02-2018 13:13:19 DEBUG - title:
+description:
+size(type):[720x1080](jpg)
+imageURL:http://www.mobygames.com/images/covers/l/441154-okami-xbox-one-front-cover.jpg
+26-02-2018 13:13:19 DEBUG - title:Okami - Standard Edition
+description:Okami - Standard Edition
+size(type):[342x434](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/81g-uF%2BXDeL._SX342_.jpg
+26-02-2018 13:13:19 DEBUG - title:Detalles de Okami HD
+description:Detalles de Okami HD
+size(type):[497x576](jpg)
+imageURL:https://k32.kn3.net/540E9CAB5.jpg
+26-02-2018 13:13:19 DEBUG - title:Persona 4 (PS2) [Importación inglesa]
+description:Persona 4 (PS2) [Importación inglesa]
+size(type):[315x445](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/91fc4SvMR9L._SY445_.jpg
+26-02-2018 13:13:19 DEBUG - ---------------
+
+26-02-2018 13:13:44 DEBUG - Search string: 'Okami'
+26-02-2018 13:13:44 DEBUG - question:Okami
+26-02-2018 13:13:44 DEBUG - ---------------
+26-02-2018 13:13:44 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Okami+PS2+cover
+26-02-2018 13:13:45 DEBUG - title:Descargar Okami PS2
+description:Descargar Okami PS2
+size(type):[215x300](jpg)
+imageURL:https://www.gamesgx.net/pbprbavr/okami.jpg
+26-02-2018 13:13:45 DEBUG - title:Okami box art cover
+description:Okami box art cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5123-okami.jpg?t=1163289849
+26-02-2018 13:13:45 DEBUG - title:Okami box art cover
+description:Okami box art cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5124-okami.jpg
+26-02-2018 13:13:45 DEBUG - title:Okami Amaterasu Which cover do tu like better? Okami PS2 versions cover o Okami Wii versions cover?
+description:Okami Amaterasu Which cover do tu like better? Okami PS2 versions cover o Okami Wii versions cover?
+size(type):[321x489](jpg)
+imageURL:http://images2.fanpop.com/image/polls/371000/371900_1265384696948_full.jpg?v=1265384722
+26-02-2018 13:13:45 DEBUG - title:Okami - PS2 - NTSC-J (Japan)
+description:Okami - PS2 - NTSC-J (Japan)
+size(type):[347x500](png)
+imageURL:https://i.neoseeker.com/boxshots/R2FtZXMvUGxheXN0YXRpb25fMi9BY3Rpb24vQWR2ZW50dXJl/okami_frontcover_large_EHsSxzn9HhVSC7w.png
+26-02-2018 13:13:45 DEBUG - title:Okami box cover
+description:Okami box cover
+size(type):[320x473](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/4440-okami.jpg
+26-02-2018 13:13:45 DEBUG - title:Kingdom Hearts II (PS2)
+description:Kingdom Hearts II (PS2)
+size(type):[224x320](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/51VK2FCKJHL._AC_UL320_SR224,320_.jpg
+26-02-2018 13:13:45 DEBUG - title:
+description:
+size(type):[800x1085](png)
+imageURL:http://skirmishfrogs.com/wp-content/uploads/2015/11/okami_cover_art_by_sweetest0perfection-d5v7ce5.png
+26-02-2018 13:13:45 DEBUG - title:
+description:
+size(type):[720x1080](jpg)
+imageURL:http://www.mobygames.com/images/covers/l/441154-okami-xbox-one-front-cover.jpg
+26-02-2018 13:13:45 DEBUG - title:Okami - Standard Edition
+description:Okami - Standard Edition
+size(type):[342x434](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/81g-uF%2BXDeL._SX342_.jpg
+26-02-2018 13:13:45 DEBUG - title:Detalles de Okami HD
+description:Detalles de Okami HD
+size(type):[497x576](jpg)
+imageURL:https://k32.kn3.net/540E9CAB5.jpg
+26-02-2018 13:13:45 DEBUG - title:Persona 4 (PS2) [Importación inglesa]
+description:Persona 4 (PS2) [Importación inglesa]
+size(type):[315x445](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/91fc4SvMR9L._SY445_.jpg
+26-02-2018 13:13:45 DEBUG - ---------------
+
+26-02-2018 13:13:49 DEBUG - Search string: 'Shadow of the Colossus'
+26-02-2018 13:13:49 DEBUG - question:Shadow of the Colossus
+26-02-2018 13:13:49 DEBUG - ---------------
+26-02-2018 13:13:49 DEBUG - googleUrl=https://www.google.com/search?tbm=isch&q=Shadow+of+the+Colossus+PS2+cover
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus PlayStation 2 Front Cover
+description:Shadow of the Colossus PlayStation 2 Front Cover
+size(type):[800x1139](jpg)
+imageURL:http://www.mobygames.com/images/covers/l/52946-shadow-of-the-colossus-playstation-2-front-cover.jpg
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus PlayStation 2 Front Cover
+description:Shadow of the Colossus PlayStation 2 Front Cover
+size(type):[800x1070](jpg)
+imageURL:http://www.mobygames.com/images/covers/l/162619-shadow-of-the-colossus-playstation-2-front-cover.jpg
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus - PlayStation 2
+description:Shadow of the Colossus - PlayStation 2
+size(type):[372x500](jpg)
+imageURL:https://images-na.ssl-images-amazon.com/images/I/51NswfdT5dL._AC_SX430_.jpg
+26-02-2018 13:13:50 DEBUG - title:Wander and the Colossus Japan Cover.jpg
+description:Wander and the Colossus Japan Cover.jpg
+size(type):[640x898]()
+imageURL:https://vignette.wikia.nocookie.net/t__/images/5/5a/Wander_and_the_Colossus_Japan_Cover.jpg/revision/latest?cb=20130712214021&path-prefix=teamico
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus box cover
+description:Shadow of the Colossus box cover
+size(type):[320x475](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/5106-shadow-of-the-colossus.jpg
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus - PlayStation 4
+description:Shadow of the Colossus - PlayStation 4
+size(type):[826x1024](jpg)
+imageURL:https://cdn.shopify.com/s/files/1/1105/5152/products/Shadow_of_the_Colossus_-_PlayStation_4_1024x1024.jpg?v=1515165718
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus box cover
+description:Shadow of the Colossus box cover
+size(type):[320x452](jpg)
+imageURL:http://vgboxart.com/boxes/PS2/1466-shadow-of-the-colossus.jpg
+26-02-2018 13:13:50 DEBUG - title:The beauty of Shadow of the Colossus is that it's an incredibly simple game. I remember the first time I played SotC on PS2, thinking, \"it's gotta get more ...
+description:The beauty of Shadow of the Colossus is that it's an incredibly simple game. I remember the first time I played SotC on PS2, thinking, \"it's gotta get more ...
+size(type):[553x640](jpg)
+imageURL:http://3.bp.blogspot.com/-KbIsk8kEBe8/UsYP0dYDdkI/AAAAAAAAAW4/_b-FHC6RUAY/s1600/sotc.jpg
+26-02-2018 13:13:50 DEBUG - title:Shadow of the Colossus PlayStation 2 Back Cover
+description:Shadow of the Colossus PlayStation 2 Back Cover
+size(type):[800x1139](png)
+imageURL:http://www.mobygames.com/images/covers/l/103001-shadow-of-the-colossus-playstation-2-back-cover.png
+26-02-2018 13:13:50 DEBUG - title:Wander and the Colossus Japan Back cover.jpg
+description:Wander and the Colossus Japan Back cover.jpg
+size(type):[640x910]()
+imageURL:https://vignette.wikia.nocookie.net/t__/images/3/3c/Wander_and_the_Colossus_Japan_Back_cover.jpg/revision/latest?cb=20130712214033&path-prefix=teamico
+26-02-2018 13:13:50 DEBUG - title:
+description:
+size(type):[220x255](jpg)
+imageURL:https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/IcoShadow.jpg/220px-IcoShadow.jpg
+26-02-2018 13:13:50 DEBUG - title:Review: Shadow Of The Colossus (Ps2)
+description:Review: Shadow Of The Colossus (Ps2)
+size(type):[300x350](jpg)
+imageURL:https://ugc.kn3.net/i/origin/http://2.bp.blogspot.com/-XlWNNnuxhAU/TrHO75VVGCI/AAAAAAAABTE/hXBU9sAQ_nY/s1600/shadow_of_the_colossus_cover.jpg
+26-02-2018 13:13:50 DEBUG - ---------------
+

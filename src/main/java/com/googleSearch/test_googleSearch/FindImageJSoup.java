@@ -65,6 +65,11 @@ public class FindImageJSoup {
 	}
 
 	public ArrayList<FindResult> findImage(String question, String questionMods, String ua, int numResults, Integer width, Integer height, 
+			Float sizeMargin, Integer widthMargin, Integer heightMargin) {
+		return findImage(question, questionMods, ua, numResults, width, height, sizeMargin, widthMargin, heightMargin, null,null);
+	}
+
+	public ArrayList<FindResult> findImage(String question, String questionMods, String ua, int numResults, Integer width, Integer height, 
 			Float sizeMargin, Integer widthMargin, Integer heightMargin, String proxyHost, Integer proxyPort) {
 		
 		ArrayList<FindResult> findResults = null;
