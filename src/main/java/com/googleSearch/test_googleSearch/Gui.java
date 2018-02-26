@@ -76,6 +76,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	private static String PARAMEXCLUDEDWORDS = "excludedWords";
 	private static String PARAMSEARCHMODDS = "searchMods";
 	private static String PARAMTARGETDIR = "targetDir";
+	private static String PARAMPROXYHOST = "proxyHost";
+	private static String PARAMPROXYPORT = "proxyPort";
 
 	private static String outputDir = null;
 	private static String tempDir = null;
@@ -83,6 +85,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	private static String[] excludedWords = null;
 	private static String searchMods = null;
 	private static String targetDir = null;
+	private static String proxyHost = null;
+	private static String proxyPort = null;
 	/////////////////////////////
 	private final static String LISTA_HECHO = "lista_hecho.log";
 	private final static ExtensionsFilter EXT_FILTER = new ExtensionsFilter(new String[] {".iso"});
@@ -168,12 +172,16 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	
 	// ================================================ Constructor
 	public Gui() {
-        logger = Log.getInstance().getLogger();
-		logger.info("Application starting...");
-		buildGui();
-		init();
-		logger.info("Application started",this);
-		test();
+		try {
+	        logger = Log.getInstance().getLogger();
+			logger.info("Application starting...");
+			buildGui();
+			init();
+			logger.info("Application started",this);
+			test();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void initDesktopPane()
@@ -204,23 +212,27 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 			ex.printStackTrace();
 		}
 
-		Container c = this;
-		while (c.getParent() != null && !(c instanceof Frame)) {
-			c = c.getParent();
-		}
-		int width = this.getWidth();
-		int height = this.getHeight();
-		System.out.println("Resolution " + this.getWidth() + " th " + this.getHeight());
-
-		if (c instanceof Frame) {
-			Frame f = (Frame) c;
-			// f.setSize(width, height);
-			// f.setMinimumSize(new Dimension(width, height));
-			// f.setPreferredSize(new Dimension(width, height));
-			Dimension dim = getToolkit().getScreenSize();
-			// f.setLocation((dim.width - GuiConstants.APP_WIDTH) / 2 ,
-			// (dim.height - GuiConstants.APP_HEIGHT -55) / 2);
-			// f.setIconImage(getImage("tng/TNG.Logo.32.png"));
+		try {
+			Container c = this;
+			while (c.getParent() != null && !(c instanceof Frame)) {
+				c = c.getParent();
+			}
+			int width = this.getWidth();
+			int height = this.getHeight();
+			System.out.println("Resolution " + this.getWidth() + " th " + this.getHeight());
+	
+			if (c instanceof Frame) {
+				Frame f = (Frame) c;
+				// f.setSize(width, height);
+				// f.setMinimumSize(new Dimension(width, height));
+				// f.setPreferredSize(new Dimension(width, height));
+				Dimension dim = getToolkit().getScreenSize();
+				// f.setLocation((dim.width - GuiConstants.APP_WIDTH) / 2 ,
+				// (dim.height - GuiConstants.APP_HEIGHT -55) / 2);
+				// f.setIconImage(getImage("tng/TNG.Logo.32.png"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		// changeJPanel(new JPanelLogin(this));
@@ -229,7 +241,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 		// HttpServer.setApplet(this);
 	}
 	
-	private void buildGui() {
+	private void buildGui() throws Exception {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 		GridBagConstraints gbc = new GridBagConstraints(0,0,1,1,1.0,1.0,GridBagConstraints.NORTH,GridBagConstraints.BOTH,new Insets(0,0,0,0),0,0);
@@ -253,7 +265,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 		setVisible(true);
 	}
 	
-	private JPanel buildPanel() {
+	private JPanel buildPanel() throws Exception {
 		
 		JPanel content = new JPanel();
 		
@@ -433,7 +445,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 		return content;
 	}
 	
-	private JPanel  buildControlPanel() {
+	private JPanel  buildControlPanel() throws Exception {
 		
 		JPanel controlPanel = new JPanel();
 		
@@ -454,11 +466,9 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 		centerPanel.setLayout(new GridBagLayout());
 		rightPanel.setLayout(new GridBagLayout());
 
-		
 		ImageIcon delIcon = getScaledImage("cross.png",IMG_BUTTON_SIZE);
 		ImageIcon upIcon = getScaledImage("up.png",IMG_BUTTON_SIZE);
 		ImageIcon downIcon = getScaledImage("down.png",IMG_BUTTON_SIZE);
-		
 
 		// leftPanel
 		jlTarget = new JLabel();
@@ -681,7 +691,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 		return controlPanel;
 	}
 
-	private JPanel  buildConfigPanel() {
+	private JPanel  buildConfigPanel() throws Exception {
 		
 		JPanel configPanel = new JPanel();
 		
@@ -778,7 +788,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	}
 
 	
-	public void changeJPanel(JPanel jPanel) {
+	public void changeJPanel(JPanel jPanel) throws Exception {
 		if (jPanel != null) {
 			if (this.lastPanel != null) {
 				jDesktopPane.remove(this.lastPanel);
@@ -835,68 +845,73 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 
 	private void setMode(Integer mode) {
 		
-		activeMode=mode;
-		if (mode.equals(MODE_SELECTED) || mode.equals(MODE_AUTOMATIC) || mode.equals(MODE_MANUAL)) {
-			jlTarget.setEnabled(false);
-			jbtTargetDir.setEnabled(false);
-			jbtTargetFile.setEnabled(false);
-			jlTargets.setEnabled(false);
-			jbtItemDel.setEnabled(false);
-			jbtItemUp.setEnabled(false);
-			jbtItemDown.setEnabled(false);
-			jtfOutDir.setEnabled(false);
-			jbtOutDir.setEnabled(false);
-			jtfTempDir.setEnabled(false);
-			jbtTempDir.setEnabled(false);
-			jtfUserAgent.setEnabled(false);
-			jtfSearchMods.setEnabled(false);
-			jtfExcludedWords.setEnabled(false);
-			jbtSaveConfigParams.setEnabled(false);
-			jtfWidth.setEnabled(false);
-			jtfHeight.setEnabled(false);
-			jrbSizeExact.setEnabled(false);
-			jrbSizeRelative.setEnabled(false);
-			jtfSizeRelativeMargin.setEnabled(false);
-			jrbSizeRelativeXY.setEnabled(false);
-			jlSizeRelativeWidth.setEnabled(false);
-			jtfSizeRelativeWidth.setEnabled(false);
-			jlSizeRelativeHeight.setEnabled(false);
-			jtfSizeRelativeHeight.setEnabled(false);
-			jrbModeSimple.setEnabled(false);
-			jrbModeAutomatic.setEnabled(false);
-			jrbModeManual.setEnabled(false);
-			jbtStart.setEnabled(false);
-		} else if (mode.equals(MODE_INACTIVE)) {
-			jlTarget.setEnabled(true);
-			jbtTargetDir.setEnabled(true);
-			jbtTargetFile.setEnabled(true);
-			jlTargets.setEnabled(true);
-			jbtItemDel.setEnabled(true);
-			jbtItemUp.setEnabled(true);
-			jbtItemDown.setEnabled(true);
-			jtfOutDir.setEnabled(true);
-			jbtOutDir.setEnabled(true);
-			jtfTempDir.setEnabled(true);
-			jbtTempDir.setEnabled(true);
-			jtfUserAgent.setEnabled(true);
-			jtfSearchMods.setEnabled(true);
-			jtfExcludedWords.setEnabled(true);
-			jbtSaveConfigParams.setEnabled(true);
-			jtfWidth.setEnabled(true);
-			jtfHeight.setEnabled(true);
-			jrbSizeExact.setEnabled(true);
-			jrbSizeRelative.setEnabled(true);
-			jtfSizeRelativeMargin.setEnabled(true);
-			jrbSizeRelativeXY.setEnabled(true);
-			jlSizeRelativeWidth.setEnabled(true);
-			jtfSizeRelativeWidth.setEnabled(true);
-			jlSizeRelativeHeight.setEnabled(true);
-			jtfSizeRelativeHeight.setEnabled(true);
-			jrbModeSimple.setEnabled(true);
-			jrbModeAutomatic.setEnabled(true);
-			jrbModeManual.setEnabled(true);
-			jbtStart.setEnabled(true);
-			manualModeCurrentListIndex=0;
+		try {
+			
+			activeMode=mode;
+			if (mode.equals(MODE_SELECTED) || mode.equals(MODE_AUTOMATIC) || mode.equals(MODE_MANUAL)) {
+				jlTarget.setEnabled(false);
+				jbtTargetDir.setEnabled(false);
+				jbtTargetFile.setEnabled(false);
+				jlTargets.setEnabled(false);
+				jbtItemDel.setEnabled(false);
+				jbtItemUp.setEnabled(false);
+				jbtItemDown.setEnabled(false);
+				jtfOutDir.setEnabled(false);
+				jbtOutDir.setEnabled(false);
+				jtfTempDir.setEnabled(false);
+				jbtTempDir.setEnabled(false);
+				jtfUserAgent.setEnabled(false);
+				jtfSearchMods.setEnabled(false);
+				jtfExcludedWords.setEnabled(false);
+				jbtSaveConfigParams.setEnabled(false);
+				jtfWidth.setEnabled(false);
+				jtfHeight.setEnabled(false);
+				jrbSizeExact.setEnabled(false);
+				jrbSizeRelative.setEnabled(false);
+				jtfSizeRelativeMargin.setEnabled(false);
+				jrbSizeRelativeXY.setEnabled(false);
+				jlSizeRelativeWidth.setEnabled(false);
+				jtfSizeRelativeWidth.setEnabled(false);
+				jlSizeRelativeHeight.setEnabled(false);
+				jtfSizeRelativeHeight.setEnabled(false);
+				jrbModeSimple.setEnabled(false);
+				jrbModeAutomatic.setEnabled(false);
+				jrbModeManual.setEnabled(false);
+				jbtStart.setEnabled(false);
+			} else if (mode.equals(MODE_INACTIVE)) {
+				jlTarget.setEnabled(true);
+				jbtTargetDir.setEnabled(true);
+				jbtTargetFile.setEnabled(true);
+				jlTargets.setEnabled(true);
+				jbtItemDel.setEnabled(true);
+				jbtItemUp.setEnabled(true);
+				jbtItemDown.setEnabled(true);
+				jtfOutDir.setEnabled(true);
+				jbtOutDir.setEnabled(true);
+				jtfTempDir.setEnabled(true);
+				jbtTempDir.setEnabled(true);
+				jtfUserAgent.setEnabled(true);
+				jtfSearchMods.setEnabled(true);
+				jtfExcludedWords.setEnabled(true);
+				jbtSaveConfigParams.setEnabled(true);
+				jtfWidth.setEnabled(true);
+				jtfHeight.setEnabled(true);
+				jrbSizeExact.setEnabled(true);
+				jrbSizeRelative.setEnabled(true);
+				jtfSizeRelativeMargin.setEnabled(true);
+				jrbSizeRelativeXY.setEnabled(true);
+				jlSizeRelativeWidth.setEnabled(true);
+				jtfSizeRelativeWidth.setEnabled(true);
+				jlSizeRelativeHeight.setEnabled(true);
+				jtfSizeRelativeHeight.setEnabled(true);
+				jrbModeSimple.setEnabled(true);
+				jrbModeAutomatic.setEnabled(true);
+				jrbModeManual.setEnabled(true);
+				jbtStart.setEnabled(true);
+				manualModeCurrentListIndex=0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -917,15 +932,23 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 		
 		((DefaultListModel)jlTargets.getModel()).removeAllElements();
 		
-        // Reading directory contents
-        File[] files = fileBaseDir.listFiles(EXT_FILTER);
-        if (files!=null && files.length>0) {
-        	String fileName = null;
-        	for (File file:files) {
-        		fileName=FilenameUtils.getBaseName(file.getPath());
-        		((DefaultListModel)jlTargets.getModel()).addElement(fileName);
-        	}
-        }
+		if (targetDir!=null) {
+			File fileTargetDir = new File(targetDir);
+			if (fileTargetDir.isFile()) {
+				fillJbChooseFile(fileTargetDir.getAbsolutePath());
+			} else if (fileTargetDir.isDirectory()) {
+		        // Reading directory contents
+		        File[] files = fileBaseDir.listFiles(EXT_FILTER);
+		        if (files!=null && files.length>0) {
+		        	String fileName = null;
+		        	for (File file:files) {
+		        		fileName=FilenameUtils.getBaseName(file.getPath());
+		        		((DefaultListModel)jlTargets.getModel()).addElement(fileName);
+		        	}
+		        }
+			}
+		}
+		
     }
 
 	public void addTextArea(String cad) {
@@ -1016,7 +1039,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	//				ArrayList<FindResult> findResults = findImage(question,"PS2 cover",USER_AGENT,4);
 					FindImageJSoup fij = new FindImageJSoup(searchString);
 					logger.debug("question:"+ question);
-			       	ArrayList<FindResult> findResults = fij.findImage(question,searchMods, userAgent,numResults,widthParam,heightParam,sizeMarginParam,widthMarginParam,heightMarginParam);
+			       	ArrayList<FindResult> findResults = fij.findImage(question,searchMods, userAgent,numResults,widthParam,heightParam,
+			       			sizeMarginParam,widthMarginParam,heightMarginParam,proxyHost,Integer.parseInt(proxyPort));
 //			       	Util.writeSerializaedObject(findResults, "findResults");
 //			       	ArrayList<FindResult> findResults = (ArrayList<FindResult>)Util.readSerializedObject("findResults");
 //					
@@ -1095,38 +1119,42 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
         chooser.showOpenDialog(Gui.this);
 
         if (chooser.getSelectedFile()!=null) {
-
         	targetDir = chooser.getSelectedFile().getAbsolutePath().substring(0,chooser.getSelectedFile().getAbsolutePath().lastIndexOf(System.getProperty("file.separator")));
-            System.out.println("-->Abrir fichero:" + chooser.getSelectedFile());
-
-            jlTarget.setText(chooser.getSelectedFile().getAbsolutePath());
-
-    		((DefaultListModel)jlTargets.getModel()).removeAllElements();
-
-            BufferedReader reader = null;
-            try {
-                String line = null;
-                int counter = 0;
-                reader = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(chooser.getSelectedFile().getAbsolutePath()), "ISO-8859-15"));
-                while ((line = reader.readLine()) != null) {
-                	((DefaultListModel)jlTargets.getModel()).addElement(line);
-                    counter++;
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (reader!=null)
-                        reader.close();
-                } catch (Exception e) {
-                    System.out.println("Error cerrando File '" + chooser.getSelectedFile().getAbsolutePath() + "':" + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
+        	String selFileAbsolutePath = chooser.getSelectedFile().getAbsolutePath();
+        	fillJbChooseFile(selFileAbsolutePath);
         }
     }
 
+    private void fillJbChooseFile(String selFileAbsolutePath) {
+        System.out.println("-->Abrir fichero:" + selFileAbsolutePath);
+
+        jlTarget.setText(selFileAbsolutePath);
+
+		((DefaultListModel)jlTargets.getModel()).removeAllElements();
+
+        BufferedReader reader = null;
+        try {
+            String line = null;
+            int counter = 0;
+            reader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(selFileAbsolutePath), "ISO-8859-15"));
+            while ((line = reader.readLine()) != null) {
+            	((DefaultListModel)jlTargets.getModel()).addElement(line);
+                counter++;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            try {
+                if (reader!=null)
+                    reader.close();
+            } catch (Exception e) {
+                System.out.println("Error cerrando File '" + selFileAbsolutePath + "':" + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    
     private void deleteRow (JList jList) {
         int selRows [] = jList.getSelectedIndices();
         if (selRows!=null && selRows.length>0) {
@@ -1234,7 +1262,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 			southPanel.setLayout(gbl);
 
 			FindResult findResult = new FindResult();
-			Image image = ImageIO.read(new File(outputDir + FileSystems.getDefault().getSeparator() + "Bully(1).jpg"));
+			Image image = ImageIO.read(new File(outputDir + FileSystems.getDefault().getSeparator() + "test.jpg"));
 			findResult.setThumbnailImage((BufferedImage)image);
 			JImagePanel jImagePanel = new JImagePanel(findResult, 100, new Dimension(400,600));
 			jImagePanel.fitToViewer();
@@ -1290,6 +1318,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
             excludedWords = Util.readPropsStrArray(prop,PARAMEXCLUDEDWORDS);
             searchMods = prop.get(PARAMSEARCHMODDS).toString();
             targetDir = prop.getProperty(PARAMTARGETDIR).toString();
+            proxyHost = prop.getProperty(PARAMPROXYHOST).toString();
+            proxyPort = prop.getProperty(PARAMPROXYPORT).toString();
             
             System.out.println("-------------------------------------------------------- Configuration params --------------------------------------------------------");
             System.out.println("outputDir=" + outputDir);
@@ -1298,6 +1328,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
             System.out.println("excludedWords=" + Util.arrayToString(excludedWords));
             System.out.println("searchMods=" + searchMods);
             System.out.println("baseDir=" + targetDir);
+            System.out.println("proxyHost=" + proxyHost);
+            System.out.println("proxyPort=" + proxyPort);
             System.out.println("--------------------------------------------------------------------------------------------------------------------------------------");
 
         } catch (Exception e) {
@@ -1316,6 +1348,9 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
     		prop.setProperty(PARAMEXCLUDEDWORDS, jtfExcludedWords.getText());
     		prop.setProperty(PARAMSEARCHMODDS, jtfSearchMods.getText());
     		prop.setProperty(PARAMTARGETDIR, jlTarget.getText());
+    		// TODO
+//    		prop.setProperty(PARAMPROXYHOST, null);
+//    		prop.setProperty(PARAMPROXYPORT, null);
 
     		prop.store(new FileOutputStream(CONFIG_FILE),null);
         } catch (Exception e) {
