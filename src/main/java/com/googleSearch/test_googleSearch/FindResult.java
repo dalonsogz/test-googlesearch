@@ -4,6 +4,8 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
+import org.json.simple.JSONArray;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class FindResult implements Serializable {
@@ -53,6 +55,19 @@ public class FindResult implements Serializable {
 		thumbnailHeight = getIntParam(node,"th");
 		thumbnailURL = getStringParam(node,"tu");
 		thumbnailWidth = getIntParam(node,"tw");
+	}
+	
+	public FindResult(JSONArray jsonArray) {
+		id = (String)jsonArray.get(1);
+		JSONArray jsonImages = (JSONArray)jsonArray.get(3);
+		imageURL = (String)jsonImages.get(0);
+		imageHeight = ((Long)jsonImages.get(1)).intValue();
+		imageWidth = ((Long)jsonImages.get(2)).intValue();
+		
+		// TODO
+		thumbnailURL = imageURL;
+		thumbnailHeight = imageHeight;
+		thumbnailWidth = imageWidth;
 	}
 
 	

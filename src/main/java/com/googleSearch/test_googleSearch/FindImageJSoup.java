@@ -1,6 +1,8 @@
 package com.googleSearch.test_googleSearch;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -9,6 +11,8 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -17,6 +21,9 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -121,9 +128,9 @@ public class FindImageJSoup {
 			while (counter<numResults && moreResults) {
 				
 				fullUrl = googleUrl;
-				if (page>0) {
-					fullUrl+="&ijn="+page+"&start="+(page*100);
-				}
+//				if (page>0) {
+//					fullUrl+="&ijn="+page+"&start="+(page*100);
+//				}
 				
 				if (proxyHost!=null && proxyPort!=null) {
 					URL url = new URL(fullUrl);
@@ -141,20 +148,99 @@ public class FindImageJSoup {
 					doc=Jsoup.connect(fullUrl).userAgent(ua).timeout(100 * 1000).get();
 				}
 				
-	//			System.out.println("---------------\n"+doc+"\n---------------\n");
-				media=doc.select("div.rg_meta"); // notranslate");
-				
-				mapper = new ObjectMapper();
-		        for (Element src : media) {
-		        	if (counter==numResults) break;
-		            responseString = src.text();
-		        	node = mapper.readTree(responseString);
-					findResult = new FindResult(node);
-
-					// Eliminar las imagenes incrustadas en htmls no descargables
-					if (findResult.getImageURL()!=null && findResult.getImageURL().startsWith("x-raw-image://")) {
-						continue;
+			    try {
+			        FileWriter myWriter = new FileWriter("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.html");
+			        myWriter.write(doc.toString());
+			        myWriter.close();
+			        System.out.println("Successfully wrote to the file.");
+			      } catch (IOException e) {
+			        System.out.println("An error occurred.");
+			        e.printStackTrace();
+			      }
+			    
+			    ArrayList<Element> elementsAll = doc.getAllElements();
+				int index = 0;
+				String jsonData="";
+				for (Element element : elementsAll) {
+					String str=element.toString();
+					if (str.contains("AF_initDataCallback") && str.contains("hash: '2'") && !str.contains("<body")) {
+						logger.debug(index+"");
+						jsonData = element.data().substring(element.data().indexOf('(')+1,element.data().lastIndexOf(')'));
 					}
+					index++;
+				}
+				
+			    try {
+			        FileWriter myWriter = new FileWriter("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.json");
+//			        jsonData = jsonData.replaceAll("\\\"","\\\\\"");  // '"' -> '\"'
+//			        jsonData = jsonData.replaceAll("\\\\\\\\\\\"","\\\\\\\\\\\\\\\"");   // '\\"' -> '\\\"'
+//			        jsonData = jsonData.replaceAll("', data:","\", \"data\":\"");
+//			        jsonData = jsonData.replaceAll(", sideChannel:","\", \"sideChannel\":");
+			        jsonData = jsonData.replaceAll("key: '","\"key\":\"");
+			        jsonData = jsonData.replaceAll("', hash: '","\", \"hash\":\"");
+			        jsonData = jsonData.replaceAll("', data:","\", \"data\":");
+			        jsonData = jsonData.replaceAll(", sideChannel:",", \"sideChannel\":");
+			        myWriter.write(jsonData);
+			        myWriter.close();
+			        System.out.println("Successfully wrote to the file.");
+			      } catch (IOException e) {
+			        System.out.println("An error occurred.");
+			        e.printStackTrace();
+			      }
+			    
+			    JSONParser parser = new JSONParser();
+			    //jsonData = "{\"key\": \"ds:1\", \"hash\": \"2\"}";
+			    logger.debug("jsonData:" + jsonData);
+			    JSONObject jObject =  (JSONObject) parser.parse(jsonData);
+			    JSONArray jArray = (JSONArray)jObject.get("data");
+
+			    JSONArray jsonResults = null;
+			    boolean found = false;
+			    for (Object dataArray: jArray) {
+				    //jObject[31][0]   [12][2][0-103]
+				    // [31][0]
+				    if (dataArray != null && dataArray instanceof JSONArray) {
+				    	for (Object jArrayData: (JSONArray)dataArray) {
+					    	// [31][0][12][0]
+						    if (jArrayData != null && jArrayData instanceof JSONArray) {
+						    	for (Object jData: (JSONArray)jArrayData) {
+						    		if (jData != null && jData instanceof JSONArray &&
+							    	 ((JSONArray)jData).size()>2 && ((JSONArray)jData).get(0)!=null && ((JSONArray)jData).get(0).equals("GRID_STATE0") &&
+							    	 ((JSONArray)jData).get(2)!=null && (((JSONArray)jData).get(2) instanceof JSONArray)) {
+						    			jsonResults = (JSONArray)((JSONArray)jData).get(2);
+						    			found = true;
+						    			break;
+							    	}
+						    	}
+						    }
+						    if (found) break;
+					    }
+				    }
+				    if (found) break;
+			    }
+
+				//			System.out.println("---------------\n"+doc+"\n---------------\n");
+//				media=doc.select("div.rg_meta"); // notranslate");
+//				
+//				mapper = new ObjectMapper();
+
+			    for (Object jsonArray:jsonResults) {
+			    	JSONArray item = (JSONArray)((JSONArray)jsonArray).get(1);
+			    	if (item==null) {
+			    		continue;
+			    	}
+			    	findResult = new FindResult(item);
+
+//		        for (Element src : media) {
+		        	if (counter==numResults) break;
+//		            responseString = src.text();
+//		        	node = mapper.readTree(responseString);
+//					findResult = new FindResult(node);
+//
+//					// Eliminar las imagenes incrustadas en htmls no descargables
+//					if (findResult.getImageURL()!=null && findResult.getImageURL().startsWith("x-raw-image://")) {
+//						continue;
+//					}
 
 					// Seleccionar segun el margen de relacion de aspecto solicitado
 					if (sizeMargin!=null && aspectRatio!=null) {
@@ -164,7 +250,6 @@ public class FindImageJSoup {
 						if (rAspectRatio<(aspectRatio-sizeMargin) || rAspectRatio>(aspectRatio+sizeMargin)) {
 							continue;	// Aspect ratio fuera de margen
 						}
-						counter++;
 					} else if (widthMargin!=null || heightMargin!=null) {
 						Integer rWidth = findResult.getImageWidth();
 						Integer rHeight = findResult.getImageHeight();
@@ -174,21 +259,19 @@ public class FindImageJSoup {
 						if (heightMargin!=null && height!=null && rHeight!=null && (rHeight>(height.intValue()+heightMargin.intValue()) || (rHeight<(height.intValue()-heightMargin.intValue())))) {
 							continue;
 						}
-						counter++;
-					} else {
-						counter++;
 					}
-									
+					counter++;
 					
 					findResult.setName(searchName);
 					logger.debug(findResult.toString());
 					findResults.add(findResult);
 		        }
 		        
-		        if (media.size()<100) {
-		        	moreResults = false;
-		        }
-		        page++;
+//		        if (media.size()<100) {
+//		        	moreResults = false;
+//		        }
+//		        page++;
+		        break;
 			}
 
 	        logger.debug("---------------\n");
