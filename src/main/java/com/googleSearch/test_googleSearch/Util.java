@@ -1,5 +1,8 @@
 package com.googleSearch.test_googleSearch;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -22,10 +25,12 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.FileSystems;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -356,6 +361,13 @@ public class Util
 	    	}
 	    	
 	    	is = con.getInputStream();
+	    	
+	    	if (con.getResponseCode()==HttpURLConnection.HTTP_MOVED_PERM || con.getResponseCode()==HttpURLConnection.HTTP_MOVED_TEMP) {
+	    		if (is!=null)
+	    			is.close();
+	    		return downloadURL (con.getHeaderField("Location"), userAgent);
+	    	}
+	    	
 	        bos = new ByteArrayOutputStream();
 	        int len;
 	        byte[] buffer = new byte[4096];
@@ -657,4 +669,93 @@ public class Util
 		}
 		return result;
 	}
+	
+	public static String md5(String md5) {
+		try {
+			java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+			byte[] array = md.digest(md5.getBytes());
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < array.length; ++i) {
+				sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
+			}
+			return sb.toString();
+		} catch (java.security.NoSuchAlgorithmException e) {
+		}
+		return null;
+	}
+	
+	
+	////// Images methods /////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	public static byte[] encodeMD5(byte[] bytes) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		byte[] md5 = md.digest(bytes);
+	    return md5;
+	}
+	
+	public static String convertToHex(byte[] data) {
+	    StringBuffer buf = new StringBuffer();
+	    for (int i = 0; i < data.length; i++) {
+	        int halfbyte = (data[i] >>> 4) & 0x0F;
+	        int two_halfs = 0;
+	        do {
+	            if ((0 <= halfbyte) && (halfbyte <= 9))
+	                buf.append((char) ('0' + halfbyte));
+	            else
+	                buf.append((char) ('a' + (halfbyte - 10)));
+	            halfbyte = data[i] & 0x0F;
+	        } while(two_halfs++ < 1);
+	    }
+	    return buf.toString();
+	}
+
+	public static int unsignedByte(byte b) {
+		return (b & 0xFF);
+	}
+	
+	public static String identifyImgFileData (byte[] bytes)
+	{
+		if(bytes!=null)
+		{
+			if ( (unsignedByte(bytes[0])==0xFF && unsignedByte(bytes[1])==0xD8 && unsignedByte(bytes[2])==0xFF) )
+			{
+				// FF D8 FF DB								ÿØÿÛ			JPEG raw
+				// FF D8 FF E0 nn nn 4A 46 49 46 00 01		ÿØÿà ..JF IF..	JPEG in JFIF format
+				// FF D8 FF E1 nn nn 45 78 69 66 00 00		ÿØÿá ..Ex if..	JPEG in Exif format
+				// FF D8 FF FE nn nn 45 78 69 66 00 00		ÿØÿá ..Ex if..	JPEG in Exif format (?)
+				return "jpg";
+			}
+			if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F') 
+			{
+				return "gif";
+			}
+			if ( (bytes[0] == 'I' && bytes[1] == 'I' && bytes[2] == '*') || (bytes[0] == 'M' && bytes[1] == 'M' && bytes[2] == '*') )
+			{
+				return "tiff";
+			}
+			if (bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F')
+			{
+				return "pdf";
+			}
+			if (unsignedByte(bytes[0])==0x89 && unsignedByte(bytes[1])==0x50 && unsignedByte(bytes[2])==0x4E && unsignedByte(bytes[3])==0x47 &&
+					unsignedByte(bytes[4])==0x0D && unsignedByte(bytes[5])==0x0A && unsignedByte(bytes[6])==0x1A && unsignedByte(bytes[7])==0x0A)
+			{
+				// 89 50 4E 47 0D 0A 1A 0A					.PNG....		PNG (Portable Network Graphics format)
+				return "png";
+			}
+		}
+		return null;
+	}
+	
+	
+	public static byte[] extractBytes (BufferedImage image) throws IOException {
+
+		 // get DataBufferBytes from Raster
+		 WritableRaster raster = image.getRaster();
+		 DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
+
+		 return ( data.getData() );
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

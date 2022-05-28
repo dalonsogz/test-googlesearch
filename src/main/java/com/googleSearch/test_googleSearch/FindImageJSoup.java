@@ -82,6 +82,8 @@ public class FindImageJSoup {
 		ArrayList<FindResult> findResults = null;
 		String googleUrl=null;
 
+		int totalCounter=0;
+		int counter=0;
 		try {
 			String params = new String();
 			if ((width!=null && height!=null)&&(sizeMargin==null||sizeMargin.floatValue()==0)&&(widthMargin==null&&heightMargin==null)) {
@@ -113,7 +115,7 @@ public class FindImageJSoup {
 			logger.debug("---------------");
 			logger.debug("googleUrl="+googleUrl);
 
-			int counter=0;
+			counter=0;
 			boolean moreResults = true;
 			Document doc = null;
 			Elements media = null;
@@ -126,7 +128,6 @@ public class FindImageJSoup {
         	findResults = new ArrayList<FindResult>();
         	// Continuar paginando resultados hasta que se alcance el numero de resultados solicitado o no se puedan obtener mas resultados
 			while (counter<numResults && moreResults) {
-				
 				fullUrl = googleUrl;
 //				if (page>0) {
 //					fullUrl+="&ijn="+page+"&start="+(page*100);
@@ -159,15 +160,15 @@ public class FindImageJSoup {
 			      }
 			    
 			    ArrayList<Element> elementsAll = doc.getAllElements();
-				int index = 0;
+//				int index = 0;
 				String jsonData="";
 				for (Element element : elementsAll) {
 					String str=element.toString();
 					if (str.contains("AF_initDataCallback") && str.contains("hash: '2'") && !str.contains("<body")) {
-						logger.debug(index+"");
+//						logger.debug("index="+index);
 						jsonData = element.data().substring(element.data().indexOf('(')+1,element.data().lastIndexOf(')'));
 					}
-					index++;
+//					index++;
 				}
 				
 			    try {
@@ -188,9 +189,8 @@ public class FindImageJSoup {
 			        e.printStackTrace();
 			      }
 			    
+			    //logger.debug("jsonData:" + jsonData);
 			    JSONParser parser = new JSONParser();
-			    //jsonData = "{\"key\": \"ds:1\", \"hash\": \"2\"}";
-			    logger.debug("jsonData:" + jsonData);
 			    JSONObject jObject =  (JSONObject) parser.parse(jsonData);
 			    JSONArray jArray = (JSONArray)jObject.get("data");
 
@@ -225,22 +225,14 @@ public class FindImageJSoup {
 //				mapper = new ObjectMapper();
 
 			    for (Object jsonArray:jsonResults) {
+			    	totalCounter++;
 			    	JSONArray item = (JSONArray)((JSONArray)jsonArray).get(1);
 			    	if (item==null) {
 			    		continue;
 			    	}
 			    	findResult = new FindResult(item);
 
-//		        for (Element src : media) {
 		        	if (counter==numResults) break;
-//		            responseString = src.text();
-//		        	node = mapper.readTree(responseString);
-//					findResult = new FindResult(node);
-//
-//					// Eliminar las imagenes incrustadas en htmls no descargables
-//					if (findResult.getImageURL()!=null && findResult.getImageURL().startsWith("x-raw-image://")) {
-//						continue;
-//					}
 
 					// Seleccionar segun el margen de relacion de aspecto solicitado
 					if (sizeMargin!=null && aspectRatio!=null) {
@@ -262,8 +254,12 @@ public class FindImageJSoup {
 					}
 					counter++;
 					
-					findResult.setName(searchName);
-					logger.debug(findResult.toString());
+//					findResult.setName(searchName);
+//					logger.debug("findResult="+findResult.toString());
+//					logger.debug("imageURL="+findResult.getImageURL());
+//					logger.debug("imageURLCoded="+findResult.getImageURLCoded());
+//					logger.debug("thumbnailURL="+findResult.getThumbnailURL());
+//					logger.debug("thumbnailURL="+findResult.getThumbnailURLCoded());
 					findResults.add(findResult);
 		        }
 		        
@@ -274,13 +270,12 @@ public class FindImageJSoup {
 		        break;
 			}
 
-	        logger.debug("---------------\n");
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e);
 		}
 		
+		logger.debug("TotalImagesFiltered:"+totalCounter);
 		return findResults;
 	}
 
@@ -295,75 +290,15 @@ public class FindImageJSoup {
 	}
 	
 	
-//    private static void print(String msg, Object... args) {
-//        System.out.println(String.format(msg, args));
-//    }
-//    
-//    private static String trim(String s, int width) {
-//        if (s.length() > width)
-//            return s.substring(0, width-1) + ".";
-//        else
-//            return s;
-//    }
-	
-	
-//    final static String LISTA_HECHO = "lista_hecho.log";
-//    final static String BASE_DIR = "D:\\PS3\\PS2\\Juegos\\_done";
-//    final static String OUT_DIR = "D:\\PS3\\PS2\\Juegos\\_done\\pics";
-//    final static String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
-//	private final static ExtensionsFilter EXT_FILTER = new ExtensionsFilter(new String[] {".iso"});
-//	private final static String[] EXCLUDED_WORDS = new String[] {"-","(english patch)","_","DVD1","DVD2","DVD3","DVD4","CD1","CD2","Disc1","Disc2","Disc3","Disc4"};
-//
-//	public static void main(String[] args) {
-//		
-//		FindImageJSoup test = new FindImageJSoup("test");
-//		test.test();
-//
-//	}
-//	
-//	public void test () {
-//		
-//		try { 
-//
-//	        File file = new File(BASE_DIR);
-//
-//	        // Reading directory contents
-//	        File[] files = file.listFiles(EXT_FILTER);
-//	        if (files!=null && files.length>0) {
-//	        	String fileName = null;
-//		        for (int i = 0; i < files.length; i++) {
-//		        	fileName = FilenameUtils.getBaseName(files[i].getPath());
-//		        	System.out.println("File:" + fileName);
-//		        	if (Util.isDoneBefore(LISTA_HECHO,fileName)) {
-//		        		System.out.println("Already done");
-//	        			continue;
-//		        	}
-//		        	String question = removeExcludedWords(fileName,EXCLUDED_WORDS);
-//		        	System.out.println("question:"+ question);
-//		        	ArrayList<FindResult> findResults = findImage(question,"PS2 cover",USER_AGENT,4);
-//					
-//					if (OUT_DIR!=null && findResults!=null && findResults.size()>0) {
-//						for (FindResult findResult:findResults) {
-//							if (findResult.getImageURL()!=null) {
-//								String resourceStr = findResult.getImageURL();
-//								resourceStr=resourceStr.substring(1,resourceStr.length()-1);
-//								Util.downloadURL(resourceStr,OUT_DIR,question,USER_AGENT);
-//							}
-//						}
-//						
-//						Util.writeFile(LISTA_HECHO,fileName,true);
-//					}
-//					
-//					Thread.sleep(2000);
-//		        }
-//	        }
-//	        
-//        	System.out.println("DONE!!!!!");
-//	        
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-
+    private static void print(String msg, Object... args) {
+        System.out.println(String.format(msg, args));
+    }
+    
+    private static String trim(String s, int width) {
+        if (s.length() > width)
+            return s.substring(0, width-1) + ".";
+        else
+            return s;
+    }
 }
 

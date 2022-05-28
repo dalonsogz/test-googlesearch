@@ -1,6 +1,5 @@
 package com.googleSearch.test_googleSearch;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,33 +7,33 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeSupport;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.security.MessageDigest;
-import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 
-public class JImageViewer extends JInternalFrame { //extends JPanel  {
+public class JImageViewer extends JInternalFrame {
 
+	private static Log logger = Log.getInstance().getLogger();
+	private static final long serialVersionUID = 9089148740073055708L;
+	
 	// JPanels
 	private JPanel jpImages = null;
 	
 	private String title = null;
-	private byte[] data = null;
 	private File currentDir = null;
 
 	// Visor para imagenes
-	public JImage imagePanel = null;
+	public JImage jImage = null;
 	public JPanel jpImageButtons = null;
 	public JButton jbtSave = null;
 	public JButton jbtRotateLeft = null;
@@ -44,54 +43,32 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 	private Image image = null;
 
 	
-	private static ImageIcon iconRotateLeft = null;
-	private static ImageIcon iconRotateRight = null;
-
-	private Dimension viewerSizeImage = new Dimension(800,600);
+	private Dimension viewerSizeImage = new Dimension(1200,900);
 	private Dimension viewerDimd = null;
-	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	
 
-	public JImageViewer (String title,byte[] data, File currentDir) {
-//		super(title,null,true,true,true,true);
+	
+	public JImageViewer (String title,File currentDir, Image m_image) {
 		this.title = title;
-		this.data = data;
 		this.currentDir = currentDir;
-		
-		loadIcons();
+		try {
+			image=m_image;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		initJImageViewerDialog();
 	}
 
-	private void loadIcons() {
-//		if (iconRotateLeft==null) {
-//			Image imageLock = jPanelBase.getJTeseoClient().getImage("rotateLeft.png");
-//			if (imageLock!=null)
-//				iconRotateLeft = new ImageIcon(imageLock.getScaledInstance(16,16,Image.SCALE_SMOOTH));
-//		}
-//		if (iconRotateRight==null) {
-//			Image imageUnlock = jPanelBase.getJTeseoClient().getImage("rotateRight.png");
-//			if (imageUnlock!=null)
-//				iconRotateRight = new ImageIcon(imageUnlock.getScaledInstance(16,16,Image.SCALE_SMOOTH));
-//		}
-	}
-	
 	private void initJImageViewerDialog() {	
 		
-//		try {
-//			jpImages = PaneBuilder.buildJPanel("gestphotos/jpImageViewer", jPanelBase, this, this, null);
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
-
-		JPanel jpImages = new JPanel();
+		jpImages = new JPanel();
 		
 		GridBagConstraints gbc = new GridBagConstraints();
 		
 		jpImages.setLayout(new GridBagLayout());
-		imagePanel = new JImage();
+		jImage = new JImage();
 		SwingUtilities.setGridBagConstraints(gbc,0,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
-		jpImages.add(imagePanel,gbc);
+		jpImages.add(jImage,gbc);
 
 		jpImageButtons = new JPanel();
 		SwingUtilities.setGridBagConstraints(gbc,0,1,1,1,1.0,0.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
@@ -118,42 +95,36 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 		SwingUtilities.setGridBagConstraints(gbc,4,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
 		jpImageButtons.add(jbtClose, gbc);
 		
-//		final Container cont = getContentPane();
-//		cont.setLayout(new GridBagLayout());
-//		SwingUtilities.setGridBagConstraints(gbc,0,0,1,10,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
-//		cont.add(jpImages, gbc);
-		
 		this.setLayout(new GridBagLayout());
 		SwingUtilities.setGridBagConstraints(gbc,0,0,1,10,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
 		this.add(jpImages,gbc);
 
-		imagePanel.setVisible(false);
+		jImage.setVisible(false);
 		jpImageButtons.setVisible(false);
-		if (data!=null) {
+
+		if (image!=null) {
 
 			jbtSave.addActionListener (
 				new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
+						File currentDir = new File("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\"); //prueba_"+(int)(Math.random() * 10000)+".jpg");
 						JFileChooser fc = new JFileChooser(currentDir);
-			            String imgType = identifyImgFileData(data);
+						fc.setDialogType(JFileChooser.SAVE_DIALOG);
+			            fc.setSelectedFile(new File("test.jpg"));
+			            fc.setFileFilter(new FileNameExtensionFilter("JPG file","jpg"));
 			            fc.setAcceptAllFileFilterUsed(true);
-			            if (imgType!=null) {
-				            fc.setFileFilter(new CustomFileFilter(new String[]{"."+ imgType},imgType));
-			            }
-			            File f = new File(title);
-			            fc.setSelectedFile(f);
 			            int returnVal = fc.showSaveDialog(JImageViewer.this);
 			            if (returnVal == JFileChooser.APPROVE_OPTION) {
-			                File file = fc.getSelectedFile();
+			            	String filename = fc.getSelectedFile().toString();
+			            	if (!filename.endsWith(".jpg"))
+			            	        filename += ".jpg";
+			                File file = new File(filename);
 			                currentDir = fc.getCurrentDirectory();
-	//		            	((JPanelAnalysisFotos)parent).setCurrentDir(currentDir);
-			                System.out.println("Saving: " + file.getName() + ".");
-	
-			        		BufferedOutputStream bof = null;
+			                logger.info("Saving: '" + file.getName()+ "'.");
+			                BufferedOutputStream bof = null;
 			        		try {
-			        			bof = new BufferedOutputStream(new FileOutputStream(file));
-			        			bof.write(data);
-	
+				        		bof = new BufferedOutputStream(new FileOutputStream(file));
+			        			ImageIO.write(jImage.getRenderedImage(), "jpg", bof);
 			        		} catch (Exception e) {
 			        			System.out.println("Error saving the file '"+ file.getName() + "'");
 			        			showError("Error saving the file '\"+ file.getName() + \"'\"");
@@ -170,8 +141,8 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 			        				System.out.println("Error(Throwable) closing file '"+ file.getName() + "'");
 			        			}
 			        		}
-			            } else {
-			                System.out.println("Save command cancelled by user.");
+//			            } else {
+//			                System.out.println("Save command cancelled by user.");
 			            }
 					}
 				}
@@ -181,7 +152,7 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 			jbtRotateLeft.addActionListener (
 				new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
-						imagePanel.rotateLeft();
+						jImage.rotateLeft();
 					}
 				}
 			);
@@ -189,7 +160,7 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 			jbtRotateRight.addActionListener (
 				new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
-						imagePanel.rotateRight();
+						jImage.rotateRight();
 					}
 				}
 			);
@@ -197,7 +168,7 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 			jbtReset.addActionListener (
 				new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
-						imagePanel.reset();
+						jImage.reset();
 					}
 				}
 			);
@@ -207,7 +178,7 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 		jbtClose.addActionListener (
 			new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-//					dispose();
+					dispose();
 				}
 			}
 		);
@@ -217,82 +188,28 @@ public class JImageViewer extends JInternalFrame { //extends JPanel  {
 
 
 		viewerDimd = viewerSizeImage;
-		imagePanel.init(image,10,viewerSizeImage);
-		imagePanel.setSize(viewerSizeImage);	
-		imagePanel.setData(data);
+		jImage.init(image,10,viewerSizeImage);
+		jImage.setSize(viewerSizeImage);	
+//		imagePanel.setData(data);
 
-		imagePanel.setVisible(true);
-		jpImageButtons.setVisible(true);
+		jImage.setVisible(true);
+			jpImageButtons.setVisible(true);
 		
 		this.setPreferredSize(viewerDimd);
 		
 //		// NO TOCAR: garantiza que los PDFs se rendericen bien al cargar inicialmente
 //		this.setSize(viewerDimd);
-		
+
 		jbtClose.requestFocus();
-	}
-	
-	////// Images methods /////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	private byte[] encodeMD5(byte[] bytes) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("MD5");
-		byte[] md5 = md.digest(bytes);
-	    return md5;
-	}
-	
-	private String convertToHex(byte[] data) {
-	    StringBuffer buf = new StringBuffer();
-	    for (int i = 0; i < data.length; i++) {
-	        int halfbyte = (data[i] >>> 4) & 0x0F;
-	        int two_halfs = 0;
-	        do {
-	            if ((0 <= halfbyte) && (halfbyte <= 9))
-	                buf.append((char) ('0' + halfbyte));
-	            else
-	                buf.append((char) ('a' + (halfbyte - 10)));
-	            halfbyte = data[i] & 0x0F;
-	        } while(two_halfs++ < 1);
-	    }
-	    return buf.toString();
+		
+		jImage.setDebug(true);
 	}
 
-	private int unsignedByte(byte b) {
-		return (b & 0xFF);
+	public void setViewerSizeImage(Dimension viewerSizeImage) {
+		this.viewerSizeImage = viewerSizeImage;
 	}
-	
-	private String identifyImgFileData (byte[] bytes)
-	{
-		if(bytes!=null)
-		{
-			if ( (unsignedByte(bytes[0])==0xFF && unsignedByte(bytes[1])==0xD8 && unsignedByte(bytes[2])==0xFF) )
-			{
-				// FF D8 FF DB								ÿØÿÛ			JPEG raw
-				// FF D8 FF E0 nn nn 4A 46 49 46 00 01		ÿØÿà ..JF IF..	JPEG in JFIF format
-				// FF D8 FF E1 nn nn 45 78 69 66 00 00		ÿØÿá ..Ex if..	JPEG in Exif format
-				// FF D8 FF FE nn nn 45 78 69 66 00 00		ÿØÿá ..Ex if..	JPEG in Exif format (?)
-				return "jpg";
-			}
-			if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F') 
-			{
-				return "gif";
-			}
-			if ( (bytes[0] == 'I' && bytes[1] == 'I' && bytes[2] == '*') || (bytes[0] == 'M' && bytes[1] == 'M' && bytes[2] == '*') )
-			{
-				return "tiff";
-			}
-			if (bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F')
-			{
-				return "pdf";
-			}
-			if (unsignedByte(bytes[0])==0x89 && unsignedByte(bytes[1])==0x50 && unsignedByte(bytes[2])==0x4E && unsignedByte(bytes[3])==0x47 &&
-					unsignedByte(bytes[4])==0x0D && unsignedByte(bytes[5])==0x0A && unsignedByte(bytes[6])==0x1A && unsignedByte(bytes[7])==0x0A)
-			{
-				// 89 50 4E 47 0D 0A 1A 0A					.PNG....		PNG (Portable Network Graphics format)
-				return "png";
-			}
-		}
-		return null;
-	}
+
+
 	
 	private class CustomFileFilter extends FileFilter {
 

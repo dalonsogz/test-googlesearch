@@ -1,5 +1,6 @@
 package com.googleSearch.test_googleSearch;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -14,9 +15,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
@@ -29,6 +27,9 @@ import javax.swing.JPanel;
 */
 public class JImage extends JPanel {
 
+	private static Log logger = Log.getInstance().getLogger();
+	private static final long serialVersionUID = 9089628740073531708L;
+	
 	private Dimension vieWerDim = null;
 	private Image m_image = null;
 	private Dimension dim = new Dimension (800,600);
@@ -50,10 +51,12 @@ public class JImage extends JPanel {
 	private double xfactor = 0;
 	private double yfactor = 0;
 	private boolean fitToViewer = false;
+	private boolean enableListeners = true;
+	private boolean debug = false;
 
-	private boolean viewerEnabled = false;
 	private boolean movingImage = false;
 
+	
 	/**
 	 * Constructor
 	 */
@@ -68,75 +71,83 @@ public class JImage extends JPanel {
 	 * @param image
 	 * @param zoomPercentage
 	 */
-	public JImage(Image image, double zoomPercentage, Dimension vieWerDim) {
+	public JImage(Image image, double zoomPercentage, Dimension vieWerDim, boolean enableListeners) {
 		m_image = image;
 		m_zoomPercentage = zoomPercentage / 100;
+		this.enableListeners = enableListeners;
 		this.vieWerDim = vieWerDim;
 		init();
 	}
 
-	private	void	init()
+	private	void init()
 	{
+		if (this.enableListeners ) {
+			addListeners();
+		}
+	}
+	
+	private void addListeners() {
 		this.addMouseListener(
-			new MouseListener() {
-				
-				public void mouseClicked(MouseEvent e) {
-					//System.out.println("mouseClicked (" + mouseX + "-" + mouseY + ")");
-					if (e.getClickCount() == 2 && m_image!=null) {
-						openImage();
+				new MouseListener() {
+					
+					public void mouseClicked(MouseEvent e) {
+						//System.out.println("mouseClicked (" + mouseX + "-" + mouseY + ")");
+						if (e.getClickCount() == 2 && m_image!=null) {
+							openImage();
+						}
+					}
+					public void mouseExited(MouseEvent e) {
+						//System.out.println("mouseExited (" + mouseX + "-" + mouseY + ")");
+					}
+					public void mouseEntered(MouseEvent e) {
+						//System.out.println("mouseEntered (" + mouseX + "-" + mouseY + ")");
+					}
+					public void mousePressed(MouseEvent e) {
+						mouseX = e.getX();
+						mouseY = e.getY();
+						//System.out.println("mousePressed (" + mouseX + "-" + mouseY + ")");
+					}
+					public void mouseReleased(MouseEvent e) {
+						mouseX = e.getX();
+						mouseY = e.getY();
+						setActualOrig();
+						move(mouseX-e.getX(),mouseY-e.getY());
+						//System.out.println("mouseReleased (" + mouseX + "-" + mouseY + ")");
+					}
+			});
+	
+			
+			this.addMouseWheelListener(
+				new MouseWheelListener() {
+					
+					public void mouseWheelMoved(MouseWheelEvent e) {
+						int notches = e.getWheelRotation();
+					       if (notches < 0) {
+								zoomIn();
+								//System.out.println(getM_zoom() + "(" + "):L(" + e.getX() + "," + e.getY() + ")");
+					       } else {
+								zoomOut();
+								//System.out.println(getM_zoom() + "(" + "):R(" + e.getX() + "," + e.getY() + ")");
+					       }
 					}
 				}
-				public void mouseExited(MouseEvent e) {
-					//System.out.println("mouseExited (" + mouseX + "-" + mouseY + ")");
+			);
+			
+			
+			this.addMouseMotionListener(
+				new MouseMotionListener() {
+					public void mouseMoved(MouseEvent e) {
+						//System.out.println("mouseMoved");
+					}
+					
+					public void mouseDragged(MouseEvent e) {
+						move(mouseX-e.getX(),mouseY-e.getY());
+						//System.out.println("mouseDragged (" + mouseX + "->" + (mouseX-e.getX()) + "-" + mouseY + "->" + (mouseY-e.getY()) + ")");
+					}
 				}
-				public void mouseEntered(MouseEvent e) {
-					//System.out.println("mouseEntered (" + mouseX + "-" + mouseY + ")");
-				}
-				public void mousePressed(MouseEvent e) {
-					mouseX = e.getX();
-					mouseY = e.getY();
-					//System.out.println("mousePressed (" + mouseX + "-" + mouseY + ")");
-				}
-				public void mouseReleased(MouseEvent e) {
-					mouseX = e.getX();
-					mouseY = e.getY();
-					setActualOrig();
-					move(mouseX-e.getX(),mouseY-e.getY());
-					//System.out.println("mouseReleased (" + mouseX + "-" + mouseY + ")");
-				}
-		});
-
-		
-		this.addMouseWheelListener(
-			new MouseWheelListener() {
-				
-				public void mouseWheelMoved(MouseWheelEvent e) {
-					int notches = e.getWheelRotation();
-				       if (notches < 0) {
-							zoomIn();
-							//System.out.println(getM_zoom() + "(" + "):L(" + e.getX() + "," + e.getY() + ")");
-				       } else {
-							zoomOut();
-							//System.out.println(getM_zoom() + "(" + "):R(" + e.getX() + "," + e.getY() + ")");
-				       }
-				}
-			}
-		);
-		
-		
-		this.addMouseMotionListener(
-			new MouseMotionListener() {
-				public void mouseMoved(MouseEvent e) {
-					//System.out.println("mouseMoved");
-				}
-				
-				public void mouseDragged(MouseEvent e) {
-					move(mouseX-e.getX(),mouseY-e.getY());
-					//System.out.println("mouseDragged (" + mouseX + "->" + (mouseX-e.getX()) + "-" + mouseY + "->" + (mouseY-e.getY()) + ")");
-				}
-			}
-		);
+			);		
 	}
+	
 	/**
 	 * Init instance with main values
 	 * 
@@ -148,26 +159,31 @@ public class JImage extends JPanel {
 		m_image = image;
 		m_zoomPercentage = zoomPercentage / 100;
 		this.vieWerDim = vieWerDim;
+		this.dim.setSize(vieWerDim);
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 	
-	public	void	setTextColor(Color c)
+	public void setTextColor(Color c)
 	{
 		textColor = c;
 	}
 
-	public	void	setBackTextColor(Color c)
+	public void setBackTextColor(Color c)
 	{
 		backTextColor = c;
 	}
 
-	private	Color	backTextColor = Color.black;
-	private	Color	textColor = Color.white;
+	private Color backTextColor = Color.black;
+	private Color textColor = Color.white;
 	/**
 	 * This method is overriden to draw the image and scale the graphics
 	 * accordingly
 	 */
 	public void paintComponent(Graphics grp) {
-
+		
 		Graphics2D g2D = (Graphics2D) grp;
 		// set the background color and fill it
 		g2D.setColor(getBackground());
@@ -182,64 +198,25 @@ public class JImage extends JPanel {
 			fitToViewer = false;
 		}
 
+//		actualWidth=(int)(m_zoom*m_image.getWidth(this));
+//		actualHeight=(int)(m_zoom*m_image.getHeight(this));
+
+		actualWidth=Math.abs((int)(m_zoom*((int)( m_image.getWidth(this)*Math.cos(angle*Math.PI/180))+
+						(int)(m_image.getHeight(this)*Math.sin(angle*Math.PI/180)))));
+		actualHeight=Math.abs((int)(m_zoom*((int)(m_image.getHeight(this)*Math.cos(angle*Math.PI/180))-
+						(int)(m_image.getWidth(this)*Math.sin(angle*Math.PI/180)))));
+
 		actualWidth=(int)(m_zoom*m_image.getWidth(this));
 		actualHeight=(int)(m_zoom*m_image.getHeight(this));
 
 		int x = (int)(origX-((actualWidth-vieWerDim.width)/2))-desplX;
 		int y = (int)(origY-((actualHeight-vieWerDim.height)/2))-desplY;
 
-		//		System.out.println("xy: (" + x + "," + y + ")");
-
 		if (movingImage) {
-			
-			int valMinusXCondition = 0;
-			int valMinusYCondition = 0;
-			if (init_m_zoom==xfactor) {
-				if ((Math.toRadians(angle)/Math.PI) % 1 == 0) {
-					valMinusXCondition = (int)(vieWerDim.width/(init_m_zoom/m_zoom));
-					valMinusYCondition = (int)((vieWerDim.height/(yfactor/xfactor))/(init_m_zoom/m_zoom));
-				} else {
-					valMinusXCondition = (int)((vieWerDim.width/(vieWerDim.width/m_image.getHeight(this)/yfactor))/(init_m_zoom/m_zoom));
-					valMinusYCondition = (int)((vieWerDim.height/(xfactor/yfactor))/(init_m_zoom/m_zoom)/xfactor);
-				}
-			} else {
-				if ((Math.toRadians(angle)/Math.PI) % 1 == 0) {
-					valMinusXCondition = (int)((vieWerDim.width/(xfactor/yfactor))/(init_m_zoom/m_zoom));
-					valMinusYCondition = (int)(vieWerDim.height/(init_m_zoom/m_zoom));
-				} else {
-					valMinusXCondition = (int)((vieWerDim.width/(yfactor/xfactor))/(init_m_zoom/m_zoom)/xfactor);
-					valMinusYCondition = (int)(vieWerDim.height/(init_m_zoom/m_zoom)/xfactor);
-				}
-			}
-			
-	//		if ((Math.toRadians(angle)/Math.PI) % 1 != 0) {
-	//			int aux=valMinusXCondition;
-	//			valMinusXCondition=valMinusYCondition;
-	//			valMinusYCondition=aux;
-	//		}
-			
-	//		valMinusXCondition=5000;
-			if (x<-valMinusXCondition) {
-	//			printInfo(x,y,"-x");
-				x=-valMinusXCondition+10;
-				desplX=(int)(origX-((actualWidth-vieWerDim.width)/2))-x;
-			} else if (x>(vieWerDim.width)) {
-	//			printInfo(x,y,"+x");
-				x=(int)((xfactor*m_image.getWidth(null))-10);
-				desplX=(int)(origX-((actualWidth-vieWerDim.width)/2))-x;
-			}
-	
-			if (y<-valMinusYCondition) {
-	//			printInfo(x,y,"-y");
-				y=-valMinusYCondition+10;
-				desplY=(int)(origY-((actualHeight-vieWerDim.height)/2))-y;
-			} else if (y>(vieWerDim.height)) {
-	//			printInfo(x,y,"+y");
-				y=(int)((yfactor*m_image.getHeight(null))-10);
-				desplY=(int)(origY-((actualHeight-vieWerDim.height)/2))-y;
-			}
-			
+//			int xy[] = limitMovement(x,y);
 			movingImage = false;
+//			x=xy[0];
+//			y=xy[1];
 		}
 
 		at = AffineTransform.getTranslateInstance(x,y);
@@ -248,32 +225,130 @@ public class JImage extends JPanel {
 		
 		g2D.drawImage(m_image,at,this);
 
-//		printInfoAux(x,y,valMinusXCondition,valMinusYCondition);
+		g2D.setColor(Color.CYAN);
+		g2D.drawRect((int)at.getTranslateX(),(int)at.getTranslateY(),10,10);
+	
+//		printInfoAux(x,y);
 		
 		g2D.setColor(backTextColor);
 		g2D.fillRect(5,5,90,40);
 		g2D.setColor(textColor);
-		g2D.drawString("[" + m_image.getWidth(this) + "x" + m_image.getHeight(this) + "]",10,20);
+		g2D.drawString("[" + actualWidth + "x" + actualHeight + "]",10,20);
+		g2D.drawString("[" + m_image.getWidth(this) + "x" + m_image.getHeight(this) + "]",10,60);
         Font font = new Font("Arial", Font.BOLD,  15);
         g2D.setFont(font);
 		g2D.setColor(textColor);
 		g2D.drawString("Zoom:" + ((int)(m_zoom*10))/10.0,10,40);
-//		g2D.setColor(Color.ORANGE);
-//		g2D.drawString("["+actualWidth+"x"+actualHeight+"]   z:"+Math.round(m_zoom*10)/10+"   " + angle +"�   ["+origX+"x"+origY+"]", 100, 10);
-//		g2D.setColor(Color.YELLOW);
-//		g2D.drawString("("+x+","+y+")", 10, 10);
-//		g2D.drawString("("+(x+actualWidth)+","+y+")", vieWerDim.width-75, 10);
-//		g2D.drawString("("+(x+actualWidth)+","+(y+actualWidth)+")", vieWerDim.width-75, vieWerDim.height-6);
-//		g2D.drawString("("+x+","+(y+actualWidth)+")", 10, vieWerDim.height-6);
-//		g2D.setColor(Color.RED);
-//		g2D.drawRect((actualWidth/2)+((vieWerDim.width-actualWidth)/2)-5, (actualHeight/2)+((vieWerDim.height-actualHeight)/2)-5, 10, 10);
-//		g2D.setColor(Color.GREEN);
-//		g2D.drawRect(x-5,y-5,10,10);
+		if (debug) {
+			int xbase=100;
+			int ybase=5;
+			g2D.setColor(Color.YELLOW);
+			g2D.drawString("("+x+","+y+")", 10, 10);
+			g2D.drawString("("+(x+actualWidth)+","+y+")", vieWerDim.width-75, 10);
+			g2D.drawString("("+(x+actualWidth)+","+(y+actualWidth)+")", vieWerDim.width-75, vieWerDim.height-6);
+			g2D.drawString("("+x+","+(y+actualWidth)+")", 10, vieWerDim.height-6);
+			g2D.setColor(Color.CYAN);
+			g2D.drawString("("+(int)at.getTranslateX()+","+(int)at.getTranslateY()+")", xbase+80, ybase+10);	
+			g2D.setColor(Color.ORANGE);
+			// TODO actualWidth actualHeight incorrect
+			g2D.drawString("width,height["+actualWidth+"x"+actualHeight+"]   zoom:"+Math.round(m_zoom*10)/10+"   angle:" + 
+							angle +"º  origX,oriY["+origX+"x"+origY+"]    desplX,desplY["+desplX+"x"+desplY+"]", xbase+150, ybase+10);
+			g2D.setColor(Color.RED);
+			g2D.setStroke(new BasicStroke(2));
+			g2D.drawOval((actualWidth/2)+((vieWerDim.width-actualWidth)/2)-5, (actualHeight/2)+((vieWerDim.height-actualHeight)/2)-5,10,10);
+
+			g2D.setColor(Color.WHITE);
+			g2D.drawRect(x-30,y-30,20,20);
+			g2D.setColor(Color.GREEN);
+			g2D.drawRect(x-5,y-5,10,10);
+			g2D.drawRect(x+actualWidth-5,y+actualHeight-5,10,10);
+			int xlim1 = (x-5)<=0?-5:x-5;
+			int ylim1 = (y-5)<=0?-5:y-5;
+			int xlim2 = (x-5)>vieWerDim.width-actualWidth?vieWerDim.width-5:x+actualWidth-5;
+			int ylim2 = (y-5)>vieWerDim.height-actualHeight?vieWerDim.height-5:y+actualHeight-5;
+			g2D.setColor(Color.RED);
+			g2D.drawOval((int)(xlim1*Math.cos(angle*Math.PI/180))+(int)(ylim1*Math.sin(angle*Math.PI/180)),
+							(int)(ylim1*Math.cos(angle*Math.PI/180))-(int)(xlim1*Math.sin(angle*Math.PI/180)),10,10);
+			g2D.setColor(Color.BLUE);
+			g2D.drawOval((int)(xlim2*Math.cos(angle*Math.PI/180)),ylim2+(int)(ylim2*Math.sin(angle*Math.PI/180)),10,10);
+			g2D.setColor(Color.BLACK);
+			g2D.fillRect(10,100,150,70);
+			g2D.setColor(Color.LIGHT_GRAY);
+			g2D.drawString("xlim1,ylim1[" + xlim1 + "x" + ylim1 + "]",10,120);
+			g2D.drawString("xlim2,ylim2[" + xlim2 + "x" + ylim2 + "]",10,140);
+			g2D.drawString("xycalc[" + ((int)(xlim1*Math.cos(angle*Math.PI/180))+(int)(ylim1*Math.sin(angle*Math.PI/180))) + "," +
+						((int)(ylim1*Math.cos(angle*Math.PI/180))-(int)(xlim1*Math.sin(angle*Math.PI/180))) + "]",10,160);
+		}
 		
 //		System.out.println("\n-----------------------> RectX:" + dim.getWidth() + " - RectY:" + dim.getHeight() + "\n" +
 //							"ImgWidth:" + actualWidth + " - ImgHeight:" + actualHeight + "\n" +
 //							"ViewerWidth:" + vieWerDim.getWidth() + " - ViewerHeight:" + vieWerDim.getHeight() + "\n");
+	}
+	
+	private int[] limitMovement(int x, int y) {
+		int valMinusXCondition = 0;
+		int valMinusYCondition = 0;
+		if (init_m_zoom == xfactor) {
+			if ((Math.toRadians(angle) / Math.PI) % 1 == 0) {
+				valMinusXCondition = (int) (vieWerDim.width / (init_m_zoom / m_zoom));
+				valMinusYCondition = (int) ((vieWerDim.height / (yfactor / xfactor)) / (init_m_zoom / m_zoom));
+			} else {
+				valMinusXCondition = (int) ((vieWerDim.width / (vieWerDim.width / m_image.getHeight(this) / yfactor)) / (init_m_zoom / m_zoom));
+				valMinusYCondition = (int) ((vieWerDim.height / (xfactor / yfactor)) / (init_m_zoom / m_zoom) / xfactor);
+			}
+		} else {
+			if ((Math.toRadians(angle) / Math.PI) % 1 == 0) {
+				valMinusXCondition = (int) ((vieWerDim.width / (xfactor / yfactor)) / (init_m_zoom / m_zoom));
+				valMinusYCondition = (int) (vieWerDim.height / (init_m_zoom / m_zoom));
+			} else {
+				valMinusXCondition = (int) ((vieWerDim.width / (yfactor / xfactor)) / (init_m_zoom / m_zoom) / xfactor);
+				valMinusYCondition = (int) (vieWerDim.height / (init_m_zoom / m_zoom) / xfactor);
+			}
+		}
+
+		// if ((Math.toRadians(angle)/Math.PI) % 1 != 0) {
+		// int aux=valMinusXCondition;
+		// valMinusXCondition=valMinusYCondition;
+		// valMinusYCondition=aux;
+		// }
+
+		// valMinusXCondition = 5000;
+		if (x < -valMinusXCondition) {
+//			printInfo(x, y, "-x");
+			x = -valMinusXCondition + 10;
+			desplX = (int) (origX - ((actualWidth - vieWerDim.width) / 2)) - x;
+		} else if (x > (vieWerDim.width)) {
+//			printInfo(x, y, "+x");
+			x = (int) ((xfactor * m_image.getWidth(null)) - 10);
+			desplX = (int) (origX - ((actualWidth - vieWerDim.width) / 2)) - x;
+		}
+
+		if (y < -valMinusYCondition) {
+//			printInfo(x, y, "-y");
+			y = -valMinusYCondition + 10;
+			desplY = (int) (origY - ((actualHeight - vieWerDim.height) / 2)) - y;
+		} else if (y > (vieWerDim.height)) {
+//			printInfo(x, y, "+y");
+			y = (int) ((yfactor * m_image.getHeight(null)) - 10);
+			desplY = (int) (origY - ((actualHeight - vieWerDim.height) / 2)) - y;
+		}
+
+		int[] vals = { x, y };
+		return vals;
+	}
+	
+	private void repaintGraphics(Graphics grp,int actualWidth, int actualHeight, int xdespl,int ydespl) {
 		
+		Graphics2D g2D = (Graphics2D) grp;
+		// set the background color and fill it
+		g2D.setColor(getBackground());
+		g2D.fillRect(0,0,(int)dim.getWidth(),(int)dim.getHeight());
+
+		at = AffineTransform.getTranslateInstance(xdespl,ydespl);
+		at.rotate(Math.toRadians(angle),(actualWidth/2),(actualHeight/2));
+		at.scale(m_zoom,m_zoom);
+		
+		g2D.drawImage(m_image,at,this);
 	}
 
 	private void printInfo(int x,int y, String str) {
@@ -289,11 +364,11 @@ public class JImage extends JPanel {
 		System.out.println("--------------------------------------------------------------------------------");
 	}
 	
-	private void printInfoAux(int x,int y,int valMinusXCondition,int valMinusYCondition) {
+	private void printInfoAux(int x,int y) {; // ,int valMinusXCondition,int valMinusYCondition) {
 		System.out.println("xy: (" + x + "," + y + "),angle: " + Math.toRadians(angle)/Math.PI +
 				") - vieWerDim: (" + vieWerDim.width + "," + vieWerDim.height + 
 				") - m_zoom: " + m_zoom + ",xfactor: " + xfactor + ",yfactor: " + yfactor +
-				" - valMinusXCondition: " + valMinusXCondition+ ",valMinusYCondition: " + valMinusYCondition +
+//				" - valMinusXCondition: " + valMinusXCondition+ ",valMinusYCondition: " + valMinusYCondition +
 				" - orig: (" + origX + "," + origY +
 				") - vieWerDim: (" + vieWerDim.width + "," + vieWerDim.height + 
 				") - actualWidth: " + actualWidth + ",actualHeight: " + actualHeight + 
@@ -330,11 +405,11 @@ public class JImage extends JPanel {
 			try {
 				dim = getSize();
 //				System.out.println("X="+image.getWidth(null) + "-Y=" +image.getHeight(null));
-//				int count = 0;
-//				while (count<3 && (image.getWidth(null)==-1 || image.getHeight(null)==-1)) {
-//					Thread.sleep(100);
-//					count++;
-//				}
+				int count = 0;
+				while (count<20 && (image.getWidth(null)==-1 || image.getHeight(null)==-1)) {
+					Thread.sleep(100);
+					count++;
+				}
 				xfactor = 1/(image.getWidth(null)/dim.getWidth());
 				yfactor = 1/(image.getHeight(null)/dim.getHeight());
 				if (image.getHeight(null)*xfactor <= dim.getHeight()) {
@@ -344,6 +419,7 @@ public class JImage extends JPanel {
 				}
 				
 				init_m_zoom = m_zoom;
+//				init_m_zoom = 1;
 				
 				fitToViewer = true;
 				
@@ -352,6 +428,36 @@ public class JImage extends JPanel {
 			}
 		}
 	}
+	
+	public Image getImage() {
+		return m_image;
+	}
+
+	public BufferedImage getRenderedImage() {
+		BufferedImage src = (BufferedImage)getImage();
+	
+		actualWidth=(int)(m_zoom*m_image.getWidth(this));
+		actualHeight=(int)(m_zoom*m_image.getHeight(this));
+		
+		int x = (int)(origX-((actualWidth-vieWerDim.width)/2))-desplX;
+		int y = (int)(origY-((actualHeight-vieWerDim.height)/2))-desplY;
+		
+		int xlim1 = x<=0?0:x;
+		int ylim1 = y<=0?0:y;
+		int xlim2 = x>=vieWerDim.width-actualWidth?vieWerDim.width:x+actualWidth;
+		int ylim2 = y>=vieWerDim.height-actualHeight?vieWerDim.height:y+actualHeight;
+		int xdespl = x<=0?x:0;
+		int ydespl = y<=0?y:0;		
+		
+		double width=xlim2-xlim1;
+		double height=ylim2-ylim1;
+		BufferedImage dst = new BufferedImage((int)width, (int)height, src.getType());
+		Graphics2D g2 = dst.createGraphics();
+		repaintGraphics(g2, actualWidth, actualHeight, xdespl, ydespl);
+		g2.dispose();
+		return dst;
+	}
+
 	 
 	/**
 	 * This method is overriden to return the preferred size which will be
@@ -473,49 +579,42 @@ public class JImage extends JPanel {
 		setData(null);
 	}
 
-//	private void openImage() {
-//		try {
-//			if (m_image!=null) {
-//				JImageViewer jImageViewer=new JImageViewer("",extractBytes((BufferedImage)m_image),null);
-//				JInternalDialog jid = new JInternalDialog("Image viewer",this,jImageViewer,true,true,true,true);
-//				jid.show();
-//			}
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
-//	}
-
 	private void openImage() {
+		openImage(null,null);
+	}
+	
+	public void openImage(Image image,Dimension viewerImageSize) {
 		try {
-			if (m_image!=null) {
-				JImageViewer jImageViewer=new JImageViewer("",extractBytes((BufferedImage)m_image),null);
-				Container cont = this.getParent();  
+			JImageViewer jImageViewer = null;
+			Container cont = this.getParent();  
+			while ((cont!=null) && !(cont instanceof JDesktopPane)) {  
+//				System.out.println(cont);
+				cont = cont.getParent();  
+			}  
+//			System.out.println(cont);
+
+			if (image!=null) {
+				jImageViewer=new JImageViewer("",null,image);
+			} else if (m_image!=null) {
+				jImageViewer=new JImageViewer("",null,m_image);
+			}
 				
-				while ((cont!=null) && !(cont instanceof JDesktopPane)) {  
-					System.out.println(cont);
-					cont = cont.getParent();  
-				}  
-				System.out.println(cont);
-				if (cont!=null) { 
-				    JDesktopPane desktop = (JDesktopPane)cont;
-				    JInternalFrame internalFrame = jImageViewer; //new JInternalFrame("Can Do All", true, true, true, true);
-				    desktop.add(internalFrame);
-				    internalFrame.setBounds(25, 25, 800, 600);
-				    internalFrame.setVisible(true);
-				    internalFrame.show();
+			if (cont!=null) { 
+				
+				if (viewerImageSize==null) {
+					viewerImageSize = dim;
 				}
+				
+			    JDesktopPane desktop = (JDesktopPane)cont;
+			    JInternalFrame internalFrame = jImageViewer; //new JInternalFrame("Can Do All", true, true, true, true);
+			    desktop.add(internalFrame);
+			    internalFrame.setBounds(25, 25, viewerImageSize.width, viewerImageSize.height);
+			    internalFrame.setVisible(true);
+			    internalFrame.show();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-	
-	public byte[] extractBytes (BufferedImage image) throws IOException {
 
-		 // get DataBufferBytes from Raster
-		 WritableRaster raster = image .getRaster();
-		 DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
-
-		 return ( data.getData() );
-		}
 }

@@ -2,20 +2,26 @@ package com.googleSearch.test_googleSearch;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 
 import org.json.simple.JSONArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class FindResult implements Serializable {
+
+	private static Log logger = Log.getInstance().getLogger();
+	private static final long serialVersionUID = 9089345344007310708L;
 	
 	private String name = null;
 	
 	private String title = null;
-	private String imageURL = null;
-	private String siteURL = null;
-	private String thumbnailURL = null;
+	private URL imageURL = null;
+	private URL siteURL = null;
 	private Integer width = null;
 	private Integer height = null;
 	private String id = null;
@@ -28,11 +34,21 @@ public class FindResult implements Serializable {
 	private String rid = null;
 	private Integer rmt = null;
 	private Integer sc = null;
-	private Integer thumbnailHeight = null;
 	private String siteName = null;
-	private Integer thumbnailWidth = null;
 	private BufferedImage image = null;
+	private URL thumbnailURL = null;
+	private Integer thumbnailWidth = null;
+	private Integer thumbnailHeight = null;
+	private String thumbnailName = null;
+	private String thumbnailType = null;	
 	private BufferedImage thumbnailImage = null;
+	
+	private String imgHash = null;
+	private String imgSiteDesc = null;
+	private String imgSiteName = null;
+	private String imgSiteDomain = null;
+	private String rgbInfo = null;
+	
 
 	public FindResult() { super(); }
 	
@@ -42,32 +58,52 @@ public class FindResult implements Serializable {
 		itg = getIntParam(node,"itg");
 		type = getStringParam(node,"ity");
 		imageHeight = getIntParam(node,"oh");
-		imageURL = getStringParam(node,"ou");
+//		imageURL = getStringParam(node,"ou");
 		imageWidth = getIntParam(node,"ow");
 		description = getStringParam(node,"pt");
 		rid = getStringParam(node,"rid");
 		rmt = getIntParam(node,"rmt");
 		rid = getStringParam(node,"rid");
-		siteURL = getStringParam(node,"ru");
+//		siteURL = getStringParam(node,"ru");
 		title = getStringParam(node,"s");
 		sc = getIntParam(node,"sc");
 		siteName = getStringParam(node,"st");
 		thumbnailHeight = getIntParam(node,"th");
-		thumbnailURL = getStringParam(node,"tu");
+//		thumbnailURL = getStringParam(node,"tu");
 		thumbnailWidth = getIntParam(node,"tw");
 	}
 	
 	public FindResult(JSONArray jsonArray) {
-		id = (String)jsonArray.get(1);
-		JSONArray jsonImages = (JSONArray)jsonArray.get(3);
-		imageURL = (String)jsonImages.get(0);
-		imageHeight = ((Long)jsonImages.get(1)).intValue();
-		imageWidth = ((Long)jsonImages.get(2)).intValue();
-		
-		// TODO
-		thumbnailURL = imageURL;
-		thumbnailHeight = imageHeight;
-		thumbnailWidth = imageWidth;
+		try {
+
+			id = (String)jsonArray.get(1);
+			JSONArray jsonImage = (JSONArray)jsonArray.get(3);
+			imageURL = new URL(jsonImage.get(0).toString());
+			imageHeight = ((Long)jsonImage.get(1)).intValue();
+			imageWidth = ((Long)jsonImage.get(2)).intValue();
+			name = new File(imageURL.getPath().toString()).getName().toString();
+			type = name!=null&&name.contains(".")?name.substring(name.lastIndexOf(".")+1):"";
+			
+			JSONArray jsonThumbnail = (JSONArray)jsonArray.get(2);
+			thumbnailURL = new URL(jsonThumbnail.get(0).toString());
+			thumbnailHeight = ((Long)jsonThumbnail.get(1)).intValue();
+			thumbnailWidth = ((Long)jsonThumbnail.get(2)).intValue();
+			thumbnailName = new File(thumbnailURL.getPath().toString()).getName().toString();
+			thumbnailType = name!=null&&name.contains(".")?name.substring(name.lastIndexOf(".")+1):"";
+			
+			rgbInfo = (String)jsonArray.get(6);
+			
+			HashMap jsonImgData = (HashMap)jsonArray.get(9);
+			JSONArray jsonImgDataMain = (JSONArray)jsonImgData.get("2003");
+			imgHash = jsonImgDataMain.get(1).toString();
+			siteURL = new URL(jsonImgDataMain.get(2).toString());
+
+			imgSiteDesc = jsonImgDataMain.get(3).toString();
+			imgSiteName = jsonImgDataMain.get(12).toString();
+			imgSiteDomain = jsonImgDataMain.get(17).toString();
+		} catch (MalformedURLException mue) {
+			logger.error("Malformed URL:"+mue.getMessage()); // + jsonImgDataMain.get(2).toString());
+		}
 	}
 
 	
@@ -107,6 +143,42 @@ public class FindResult implements Serializable {
 		return result;
 	}
 
+	public String getImageURLCoded() {
+		return imageURL!=null?Util.md5(imageURL.toString()):"";
+	}
+	
+	public String getNameWithCode() {
+		String nameWithCode = getImageURLCoded();
+		if (name!=null) {
+			if (name.lastIndexOf(".")>0) {
+				nameWithCode = name.substring(0,name.lastIndexOf(".")) + "_" + 
+							nameWithCode + name.substring(name.lastIndexOf("."));
+			} else {
+				nameWithCode = name + "_" + nameWithCode;
+			}
+		}
+		return nameWithCode;
+	}
+
+	public String getThumbnailURLCoded() {
+		return thumbnailURL!=null?Util.md5(thumbnailURL.toString()):"";
+	}
+	
+	public String getThumbnailNameWithCode() {
+		String nameWithCode = getThumbnailURLCoded();
+		if (thumbnailName!=null) {
+			if (thumbnailName.lastIndexOf(".")>0) {
+				nameWithCode = thumbnailName.substring(0,thumbnailName.lastIndexOf(".")) + "_" + 
+							nameWithCode + thumbnailName.substring(thumbnailName.lastIndexOf("."));
+			} else {
+				nameWithCode = thumbnailName + "_" + nameWithCode;
+			}
+		}
+		return nameWithCode;
+	}
+
+	///
+	
 	public String getId() {
 		return id;
 	}
@@ -194,6 +266,22 @@ public class FindResult implements Serializable {
 	public void setThumbnailHeight(Integer thumbnailHeight) {
 		this.thumbnailHeight = thumbnailHeight;
 	}
+	
+	public String getThumbnailName() {
+		return thumbnailName;
+	}
+
+	public void setThumbnailName(String thumbnailName) {
+		this.thumbnailName = thumbnailName;
+	}
+
+	public String getThumbnailType() {
+		return thumbnailType;
+	}
+
+	public void setThumbnailType(String thumbnailType) {
+		this.thumbnailType = thumbnailType;
+	}
 
 	public String getSiteName() {
 		return siteName;
@@ -217,22 +305,22 @@ public class FindResult implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getImageURL() {
+	public URL getImageURL() {
 		return imageURL;
 	}
-	public void setImageURL(String imageURL) {
+	public void setImageURL(URL imageURL) {
 		this.imageURL = imageURL;
 	}
-	public String getSiteURL() {
+	public URL getSiteURL() {
 		return siteURL;
 	}
-	public void setSiteURL(String siteURL) {
+	public void setSiteURL(URL siteURL) {
 		this.siteURL = siteURL;
 	}
-	public String getThumbnailURL() {
+	public URL getThumbnailURL() {
 		return thumbnailURL;
 	}
-	public void setThumbnailURL(String thumnailURL) {
+	public void setThumbnailURL(URL thumnailURL) {
 		this.thumbnailURL = thumnailURL;
 	}
 	public Image getImage() {

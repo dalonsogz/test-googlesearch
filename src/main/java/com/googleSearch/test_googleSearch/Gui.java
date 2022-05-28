@@ -65,6 +65,7 @@ import com.googleSearch.test_googleSearch.Util.ExtensionsFilter;
 
 public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 
+	private static Log logger = Log.getInstance().getLogger();
 	private static final long serialVersionUID = 123123123;
 	
 	// Configuration parameters
@@ -99,14 +100,12 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 
 	private final int IMG_BUTTON_SIZE = 25;
 
-	public static int APP_WIDTH = 1500;
-	public static int APP_HEIGHT = 1200;
+	public static int APP_WIDTH = 2300;
+	public static int APP_HEIGHT = 1400;
 
 	private final static int PIC_COLS = 6;
 	private final static int PIC_ROWS = 2;
 	
-    private static Log logger = null;
-
 	private JDesktopPane jDesktopPane = null;
 	private JInternalFrame lastPanel = null;
 	private JPanel northPanel = new JPanel();
@@ -119,7 +118,6 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	private JButton configFileButton = null;
 	private JButton logConfigFileButton = null;
 	private JButton parsedNewsButton = null;
-//	private JButton startButton = null;
 	private static JTextArea textArea = null;
 	private static JScrollPane scrollPane = null;
 
@@ -170,10 +168,10 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	private Integer activeMode = null;
 	private int manualModeCurrentListIndex = 0;
 	
+	
 	// ================================================ Constructor
 	public Gui() {
 		try {
-	        logger = Log.getInstance().getLogger();
 			logger.info("Application starting...");
 			buildGui();
 			init();
@@ -212,35 +210,35 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 			ex.printStackTrace();
 		}
 
-		try {
-			Container c = this;
-			while (c.getParent() != null && !(c instanceof Frame)) {
-				c = c.getParent();
-			}
-			int width = this.getWidth();
-			int height = this.getHeight();
-			System.out.println("Resolution " + this.getWidth() + " th " + this.getHeight());
+//		try {
+//			Container c = this;
+//			while (c.getParent() != null && !(c instanceof Frame)) {
+//				c = c.getParent();
+//			}
+//			int width = this.getWidth();
+//			int height = this.getHeight();
+//			System.out.println("Resolution " + this.getWidth() + " th " + this.getHeight());
 	
-			if (c instanceof Frame) {
-				Frame f = (Frame) c;
+//			if (c instanceof Frame) {
+//				Frame f = (Frame) c;
 				// f.setSize(width, height);
 				// f.setMinimumSize(new Dimension(width, height));
 				// f.setPreferredSize(new Dimension(width, height));
-				Dimension dim = getToolkit().getScreenSize();
+//				Dimension dim = getToolkit().getScreenSize();
 				// f.setLocation((dim.width - GuiConstants.APP_WIDTH) / 2 ,
 				// (dim.height - GuiConstants.APP_HEIGHT -55) / 2);
 				// f.setIconImage(getImage("tng/TNG.Logo.32.png"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		// changeJPanel(new JPanelLogin(this));
 		// HttpServer.setCsvContent("1;1;1;1;1;1;1;1;1;1;");
 		// HttpServer.setHtmlContent("");
 		// HttpServer.setApplet(this);
 	}
-	
+
 	private void buildGui() throws Exception {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
@@ -916,6 +914,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	}
 
 	private void init() {
+		
+		initParams();
         File fileBaseDir = new File(targetDir);
 
 		jtfOutDir.setText(outputDir);
@@ -1045,6 +1045,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 //			       	Util.writeSerializaedObject(findResults, "findResults");
 //			       	ArrayList<FindResult> findResults = (ArrayList<FindResult>)Util.readSerializedObject("findResults");
 //					
+					String thumbsdir = tempDir + "thumbs" + FileSystems.getDefault().getSeparator();
 					if (tempDir!=null && findResults!=null && findResults.size()>0) {
 						String resourceStr = null;
 						JImagePanel jImagePanel = null;
@@ -1052,10 +1053,12 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 						int y=0;
 						for (FindResult findResult:findResults) {
 							if (findResult.getImageURL()!=null) {
-	//							resourceStr = findResult.getImageURL();
-								resourceStr = findResult.getThumbnailURL();
-								String destination = Util.downloadURL(resourceStr,tempDir,question,userAgent);
-//								String destination = "D:\\PS3\\PS2\\Juegos\\_done\\pics\\temp\\Red Dead Revolver";
+//								resourceStr = findResult.getImageURL();
+								resourceStr = findResult.getThumbnailURL().toString();
+								String destination = thumbsdir + findResult.getThumbnailNameWithCode();
+								if (!new File(destination).isFile()) {
+									destination = Util.downloadURL(resourceStr,thumbsdir,findResult.getThumbnailNameWithCode(),userAgent);
+								}
 								
 								Image image = null;
 								try {
@@ -1305,12 +1308,11 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 
 	public static void main(String[] args) {
 		System.out.println("Launching Gui");
-		initParams();
 		Gui gui = new Gui();
 	}
 	
 	
-    private static void initParams() {
+    private void initParams() {
         try {
             Properties prop = readConfig();
             outputDir = prop.get(PARAMCOMFIGFILE).toString();
@@ -1321,17 +1323,17 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
             targetDir = prop.getProperty(PARAMTARGETDIR).toString();
             proxyHost = prop.getProperty(PARAMPROXYHOST).toString();
             proxyPort = prop.getProperty(PARAMPROXYPORT).toString();
-            
-            System.out.println("-------------------------------------------------------- Configuration params --------------------------------------------------------");
-            System.out.println("outputDir=" + outputDir);
-            System.out.println("tempDir=" + tempDir);
-            System.out.println("userAgent=" + userAgent);
-            System.out.println("excludedWords=" + Util.arrayToString(excludedWords));
-            System.out.println("searchMods=" + searchMods);
-            System.out.println("baseDir=" + targetDir);
-            System.out.println("proxyHost=" + proxyHost);
-            System.out.println("proxyPort=" + proxyPort);
-            System.out.println("--------------------------------------------------------------------------------------------------------------------------------------");
+
+            logger.info("-------------------------------------------------------- Configuration params --------------------------------------------------------",this);
+            logger.info("outputDir=" + outputDir,this);
+            logger.info("tempDir=" + tempDir,this);
+            logger.info("userAgent=" + userAgent,this);
+            logger.info("excludedWords=" + Util.arrayToString(excludedWords),this);
+            logger.info("searchMods=" + searchMods,this);
+            logger.info("baseDir=" + targetDir,this);
+            logger.info("proxyHost=" + proxyHost,this);
+            logger.info("proxyPort=" + proxyPort,this);
+            logger.info("--------------------------------------------------------------------------------------------------------------------------------------",this);
 
         } catch (Exception e) {
             logger.error("IOException:" + e.getMessage());

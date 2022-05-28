@@ -8,13 +8,21 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,14 +37,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.io.FileUtils;
+
+import com.google.common.io.Files;
+
 public class JImagePanel extends JPanel {
 
-	private static final long serialVersionUID = -9089648740073530708L;
-
-
+	private static Log logger = Log.getInstance().getLogger();
+	private static final long serialVersionUID = 9089648740073530708L;
 	private static final String DEFAULT_SAVE_FORMAT = "jpg";
 
-	
 	private FindResult findResult = null;
 
 	private File currentDir = null;
@@ -51,15 +61,31 @@ public class JImagePanel extends JPanel {
 	
     public JImagePanel(FindResult findResult, double zoomPercentage, Dimension vieWerDim) {
     	this.findResult=findResult;
-    	jImage = new JImage(findResult.getThumbnailImage(),zoomPercentage,vieWerDim);
+    	jImage = new JImage(findResult.getThumbnailImage(),zoomPercentage,vieWerDim,false);
     	buildPanel();
     	init();
     }
 
 	private void init() {
-		jlInfo.setText("[" + findResult.getImageWidth() + " x " + findResult.getImageHeight() + "](" + findResult.getType() + ")]");
-	}
+		jlInfo.setText("[" + findResult.getImageWidth() + " x " + findResult.getImageHeight() + "]  "
+				+ (findResult.getType()!=null&&!findResult.getType().isEmpty()?"(" + findResult.getType() + ")":""));
 		
+		this.addMouseListener(
+				new MouseListener() {
+					
+					public void mouseClicked(MouseEvent e) {
+						if (e.getClickCount() == 2) {
+							Image image = loadFullImage(true);
+ 							jImage.openImage(image, new Dimension(1200,900));
+						}
+					}
+					public void mouseExited(MouseEvent e) {}
+					public void mouseEntered(MouseEvent e) {}
+					public void mousePressed(MouseEvent e) {}
+					public void mouseReleased(MouseEvent e) {}
+			});
+	}
+
 	private void buildPanel() {
 
 		this.setLayout(new GridBagLayout());
@@ -85,36 +111,85 @@ public class JImagePanel extends JPanel {
     }
 	
 	public void saveImage() {
-
-        boolean saved = false;
-        try {
-        	if (findResult.getImage()==null) {
-//        		String destination = Util.downloadURL(findResult.getImageURL(),downloadPath,findResult.getName(),userAgent);
-//	        	String fullPathName = downloadPath + FileSystems.getDefault().getSeparator() + findResult.getName();
-	        	ByteArrayOutputStream bos = Util.downloadURL(findResult.getImageURL(), userAgent);
-	        	byte[] imageBytes = bos.toByteArray();
-	        	Image image = ImageIO.read(new ByteArrayInputStream(imageBytes));
-	        	findResult.setImage((BufferedImage)image);
-        	}
-        	
-        	saveImageToFile(findResult.getImage());
-        	
-        	saved=true;
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-        if (!saved) {
-        	showError("No se pudo grabar el fichero");
-        } else {
-        	fireSaveEvent(findResult);
-        }
-	}
-
-	private void saveThumbnailImage(Image image) {
-		saveImageToFile(findResult.getThumbnailImage());
+		saveImage(null);
 	}
 	
-	private void saveImageToFile(Image image) {
+	public void saveImage(Image image) {
+
+		if (findResult.getImageURL()!=null) {
+	        Boolean saved = null;
+	        try {
+	        	File fileToSave = new File(currentDir + FileSystems.getDefault().getSeparator() + findResult.getNameWithCode());
+	        	
+	        	if (!fileToSave.exists()) {
+	        		saved=Boolean.FALSE;
+	        		if (image==null)
+	        			image=loadFullImage(false);
+		        	findResult.setImage((BufferedImage)image);
+		        	if (findResult.getImage()==null) {
+		        		showError("No se pudo descargar el fichero");
+		        		return;
+		        	}
+		        	saveImageToFile(findResult.getImage(),fileToSave.getAbsolutePath());
+		        	saved=Boolean.TRUE;
+	        	}
+	        	
+	        } catch (Exception e) {
+	        	e.printStackTrace();
+	        }
+	        if (saved!=null)
+		        if (!saved.equals(Boolean.TRUE)) {
+		        	showError("No se pudo grabar el fichero");
+		        } else {
+		        	fireSaveEvent(findResult);
+		        }
+		}
+	}
+
+	private Image loadFullImage(boolean saveIfNotExists) {
+		Image image = null;
+  	    try {
+        	File fileToLoad = new File(currentDir + FileSystems.getDefault().getSeparator() + findResult.getNameWithCode());
+        	
+	    	if (fileToLoad.exists()) {
+	    		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fileToLoad));
+	        	image = ImageIO.read(bis);
+	    	} else {
+	    		image = downloadFullImage();
+	  	    	findResult.setImage((BufferedImage)image);
+	  	    	if (saveIfNotExists) {
+	  	    		saveImage(image);
+	  	    	}
+	    	}
+  	    } catch (Exception e) {
+  	    	e.printStackTrace();
+        	showError("No se pudo cargar el fichero");
+		}
+	    return image;
+	}
+	
+	private Image downloadFullImage() {
+		Image image = null;
+  	    try {
+	    	if (findResult.getImageURL()!=null) {
+	    		logger.info("Downloading '" + findResult.getImageURL() + "'");
+	        	ByteArrayOutputStream bos = Util.downloadURL(findResult.getImageURL().toString(), userAgent);
+	        	byte[] imageBytes = bos.toByteArray();
+	        	image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+	    	}
+  	    } catch (Exception e) {
+  	    	e.printStackTrace();
+        	showError("No se pudo descargar el fichero");
+		}
+    	return image;
+	}
+	
+//	private void saveThumbnailImage(Image image) {
+//		String destFile = currentDir + FileSystems.getDefault().getSeparator() + findResult.getName();
+//		saveImageToFile(findResult.getThumbnailImage(),destFile);
+//	}
+	
+	private void saveImageToFile(Image image, String fullPathName) {
 		
 		if (image!=null) {
 	        BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
@@ -126,13 +201,12 @@ public class JImagePanel extends JPanel {
 	        File imageFile = null;
 	        boolean saved = false;
 	        try {
-	        	String fullPathName = currentDir + FileSystems.getDefault().getSeparator() + findResult.getName();
 	        	String type = findResult.getType();
 	        	if (type==null || type.isEmpty()) {
 	        		type=DEFAULT_SAVE_FORMAT;
 	        	}
-	        	fullPathName+="."+type;
 	        	imageFile = new File(fullPathName);
+
 	        	saved = ImageIO.write(bufferedImage, type, imageFile);
 	        } catch (Exception e) {
 	        	e.printStackTrace();
@@ -237,46 +311,7 @@ public class JImagePanel extends JPanel {
 		this.userAgent = userAgent;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private int unsignedByte(byte b) {
-		return (b & 0xFF);
-	}
-	
-	private String identifyImgFileData (byte[] bytes)
-	{
-		if(bytes!=null)
-		{
-			if ( (unsignedByte(bytes[0])==0xFF && unsignedByte(bytes[1])==0xD8 && unsignedByte(bytes[2])==0xFF) )
-			{
-				// FF D8 FF DB								ÿØÿÛ			JPEG raw
-				// FF D8 FF E0 nn nn 4A 46 49 46 00 01		ÿØÿà ..JF IF..	JPEG in JFIF format
-				// FF D8 FF E1 nn nn 45 78 69 66 00 00		ÿØÿá ..Ex if..	JPEG in Exif format
-				// FF D8 FF FE nn nn 45 78 69 66 00 00		ÿØÿá ..Ex if..	JPEG in Exif format (?)
-				return "jpg";
-			}
-			if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F') 
-			{
-				return "gif";
-			}
-			if ( (bytes[0] == 'I' && bytes[1] == 'I' && bytes[2] == '*') || (bytes[0] == 'M' && bytes[1] == 'M' && bytes[2] == '*') )
-			{
-				return "tiff";
-			}
-			if (bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F')
-			{
-				return "pdf";
-			}
-			if (unsignedByte(bytes[0])==0x89 && unsignedByte(bytes[1])==0x50 && unsignedByte(bytes[2])==0x4E && unsignedByte(bytes[3])==0x47 &&
-					unsignedByte(bytes[4])==0x0D && unsignedByte(bytes[5])==0x0A && unsignedByte(bytes[6])==0x1A && unsignedByte(bytes[7])==0x0A)
-			{
-				// 89 50 4E 47 0D 0A 1A 0A					.PNG....		PNG (Portable Network Graphics format)
-				return "png";
-			}
-		}
-		return null;
-	}
-	
 	private class CustomFileFilter extends FileFilter {
 
 		private String[] okFileExtensions=new String[] {};
