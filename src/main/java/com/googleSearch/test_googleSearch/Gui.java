@@ -176,7 +176,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 			buildGui();
 			init();
 			logger.info("Application started",this);
-			//test();
+			test();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1266,7 +1266,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 			southPanel.setLayout(gbl);
 
 			FindResult findResult = new FindResult();
-			Image image = ImageIO.read(new File(outputDir + FileSystems.getDefault().getSeparator() + "test.jpg"));
+			Image image = ImageIO.read(new File(outputDir + "test.jpg"));
 			findResult.setThumbnailImage((BufferedImage)image);
 			JImagePanel jImagePanel = new JImagePanel(findResult, 100, new Dimension(400,600));
 			jImagePanel.fitToViewer();
