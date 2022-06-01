@@ -269,9 +269,11 @@ public class JImage extends JPanel {
 			g2D.drawString("width,height["+actualRealWidth+"x"+actualRealHeight+"]   zoom:"+Math.round(m_zoom*10)/10+"   angle:" + 
 							angle +"º  origX,oriY["+origX+"x"+origY+"]    desplX,desplY["+desplX+"x"+desplY+"]", xbase+150, ybase+10);
 
-			g2D.setColor(Color.RED);
+			g2D.setColor(Color.WHITE);
 			g2D.setStroke(new BasicStroke(2));
-			g2D.drawOval((actualWidth/2)+((vieWerDim.width-actualWidth)/2)-5, (actualHeight/2)+((vieWerDim.height-actualHeight)/2)-5,10,10);
+			int centerX=origX+(actualWidth/2)+((vieWerDim.width-actualWidth)/2)-5;
+			int centerY=origY+(actualHeight/2)+((vieWerDim.height-actualHeight)/2)-5;
+			g2D.drawOval(centerX,centerY,10,10);
 
 //			g2D.setColor(Color.WHITE);
 //			g2D.drawRect(x-30,y-30,20,20);
@@ -281,30 +283,23 @@ public class JImage extends JPanel {
 			
 			int xlim1 = (x-5)<=0?-5:x-5;
 			int ylim1 = (y-5)<=0?-5:y-5;
-			int xlim2 = (x-5)>vieWerDim.width-actualWidth?vieWerDim.width-5:x+actualWidth-5;
-			int ylim2 = (y-5)>vieWerDim.height-actualHeight?vieWerDim.height-5:y+actualHeight-5;
+			int xlim2 = (x-5)>vieWerDim.width-actualRealWidth?vieWerDim.width-5:x+actualWidth-5;
+			int ylim2 = (y-5)>vieWerDim.height-actualRealHeight?vieWerDim.height-5:y+actualHeight-5;
+			at = new AffineTransform(1.0,0.0,0.0,1.0,0.0,0.0);
+			at.rotate(Math.toRadians(angle),centerX,centerY);
+			g2D.setTransform(at);
 			g2D.setColor(Color.RED);
-			g2D.drawOval((int)(xlim1*Math.cos(Math.toRadians(angle)))+(int)(ylim1*Math.sin(Math.toRadians(angle))),
-							(int)(ylim1*Math.cos(Math.toRadians(angle)))-(int)(xlim1*Math.sin(Math.toRadians(angle))),10,10);
+			g2D.drawOval(xlim1,ylim1,10,10);
 			g2D.setColor(Color.BLUE);
-			g2D.drawOval((int)(xlim2*Math.cos(Math.toRadians(angle))),ylim2+(int)(ylim2*Math.sin(Math.toRadians(angle))),10,10);
-			g2D.setColor(Color.CYAN);
-			g2D.drawRect((int)at.getTranslateX(),(int)at.getTranslateY(),10,10);
-//			int x4 = (int)((at.getTranslateX()+actualRealWidth)*Math.cos(Math.toRadians(angle)))+
-//						(int)((at.getTranslateY()+actualRealHeight)*Math.sin(Math.toRadians(angle)));
-//			int y4 = (int)((at.getTranslateY()+actualRealHeight)*Math.cos(Math.toRadians(angle)))-
-//						(int)((at.getTranslateX()+actualRealWidth)*Math.sin(Math.toRadians(angle)));
+			g2D.drawOval(xlim2,ylim1,10,10);
+			g2D.setColor(Color.GREEN);
+			g2D.drawOval(xlim1,ylim2,10,10);
+			g2D.setColor(Color.ORANGE);
+			g2D.drawOval(xlim2,ylim2,10,10);
 			
-			int x2 = (int)(origX-((actualWidth-vieWerDim.width)))-desplX;
-			int y2 = (int)(origY-((actualHeight-vieWerDim.height)/2))-desplY;
+			at = new AffineTransform(1.0,0.0,0.0,1.0,0.0,0.0);
+			g2D.setTransform(at);
 			
-			AffineTransform at2 = AffineTransform.getTranslateInstance(x2,y);
-			at2.rotate(Math.toRadians(angle+angleRotation)); //,(actualWidth/2),(actualHeight/2));
-			at2.scale(m_zoom,m_zoom);
-			
-			g2D.setColor(Color.WHITE);
-			g2D.drawRect((int)at2.getTranslateX(),(int)at2.getTranslateY(),10,10);
-//			System.out.println((int)at.getTranslateX()+","+(int)at.getTranslateY());
 			
 			g2D.setColor(Color.BLACK);
 			g2D.fillRect(10,100,150,70);
