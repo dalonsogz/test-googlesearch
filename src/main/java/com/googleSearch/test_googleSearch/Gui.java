@@ -100,8 +100,8 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 
 	private final int IMG_BUTTON_SIZE = 25;
 
-	public static int APP_WIDTH = 2300;
-	public static int APP_HEIGHT = 1400;
+	public static int APP_WIDTH = 2200;
+	public static int APP_HEIGHT = 1300;
 
 	private final static int PIC_COLS = 6;
 	private final static int PIC_ROWS = 2;
@@ -176,7 +176,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 			buildGui();
 			init();
 			logger.info("Application started",this);
-			test();
+			//test();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

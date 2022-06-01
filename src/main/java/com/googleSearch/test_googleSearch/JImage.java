@@ -47,6 +47,9 @@ public class JImage extends JPanel {
 	private int angle = 0;
 	private	int	mouseX = 0;
 	private	int	mouseY = 0;
+	private	int	lastMouseX = 0;
+	private	int	lastMouseY = 0;
+	private double angleRotation = 0;
 
 	private double xfactor = 0;
 	private double yfactor = 0;
@@ -55,6 +58,7 @@ public class JImage extends JPanel {
 	private boolean debug = false;
 
 	private boolean movingImage = false;
+	private boolean rotatingImage = false;
 
 	
 	/**
@@ -92,6 +96,10 @@ public class JImage extends JPanel {
 					
 					public void mouseClicked(MouseEvent e) {
 						//System.out.println("mouseClicked (" + mouseX + "-" + mouseY + ")");
+						if (javax.swing.SwingUtilities.isMiddleMouseButton(e)) {
+							logger.debug("x,y [" + e.getX() + "," + e.getY() + "]");
+							logger.debug("origX,Y [" + origX + "," + origY + "]");
+						}
 						if (e.getClickCount() == 2 && m_image!=null) {
 							openImage();
 						}
@@ -111,7 +119,8 @@ public class JImage extends JPanel {
 						mouseX = e.getX();
 						mouseY = e.getY();
 						setActualOrig();
-						move(mouseX-e.getX(),mouseY-e.getY());
+						//System.out.println("---------------------------");
+//						move(mouseX-e.getX(),mouseY-e.getY());
 						//System.out.println("mouseReleased (" + mouseX + "-" + mouseY + ")");
 					}
 			});
@@ -141,8 +150,14 @@ public class JImage extends JPanel {
 					}
 					
 					public void mouseDragged(MouseEvent e) {
-						move(mouseX-e.getX(),mouseY-e.getY());
-						//System.out.println("mouseDragged (" + mouseX + "->" + (mouseX-e.getX()) + "-" + mouseY + "->" + (mouseY-e.getY()) + ")");
+						if (javax.swing.SwingUtilities.isLeftMouseButton(e)) {
+							move(mouseX-e.getX(),mouseY-e.getY());
+//							System.out.println("mouseDragged (" + mouseX + "->" + (mouseX-e.getX()) + "-" + mouseY + "->" + (mouseY-e.getY()) + ")");
+						} else if (javax.swing.SwingUtilities.isRightMouseButton(e)) {
+							boolean clockwise = e.getX()>lastMouseX;
+							lastMouseX = e.getX();
+							rotate(clockwise);
+						}
 					}
 				}
 			);		
@@ -198,13 +213,11 @@ public class JImage extends JPanel {
 			fitToViewer = false;
 		}
 
-//		actualWidth=(int)(m_zoom*m_image.getWidth(this));
-//		actualHeight=(int)(m_zoom*m_image.getHeight(this));
 
-		actualWidth=Math.abs((int)(m_zoom*((int)( m_image.getWidth(this)*Math.cos(angle*Math.PI/180))+
-						(int)(m_image.getHeight(this)*Math.sin(angle*Math.PI/180)))));
-		actualHeight=Math.abs((int)(m_zoom*((int)(m_image.getHeight(this)*Math.cos(angle*Math.PI/180))-
-						(int)(m_image.getWidth(this)*Math.sin(angle*Math.PI/180)))));
+		int actualRealWidth=Math.abs((int)(m_zoom*((int)( m_image.getWidth(this)*Math.cos(Math.toRadians(angle)))+
+						(int)(m_image.getHeight(this)*Math.sin(Math.toRadians(angle))))));
+		int actualRealHeight=Math.abs((int)(m_zoom*((int)(m_image.getHeight(this)*Math.cos(Math.toRadians(angle)))-
+						(int)(m_image.getWidth(this)*Math.sin(Math.toRadians(angle))))));
 
 		actualWidth=(int)(m_zoom*m_image.getWidth(this));
 		actualHeight=(int)(m_zoom*m_image.getHeight(this));
@@ -220,64 +233,86 @@ public class JImage extends JPanel {
 		}
 
 		at = AffineTransform.getTranslateInstance(x,y);
-		at.rotate(Math.toRadians(angle),(actualWidth/2),(actualHeight/2));
+		at.rotate(Math.toRadians(angle+angleRotation),(actualWidth/2),(actualHeight/2));
 		at.scale(m_zoom,m_zoom);
 		
 		g2D.drawImage(m_image,at,this);
 
-		g2D.setColor(Color.CYAN);
-		g2D.drawRect((int)at.getTranslateX(),(int)at.getTranslateY(),10,10);
-	
+		if (rotatingImage) {
+			rotatingImage = false;
+		}
+
 //		printInfoAux(x,y);
 		
 		g2D.setColor(backTextColor);
 		g2D.fillRect(5,5,90,40);
 		g2D.setColor(textColor);
-		g2D.drawString("[" + actualWidth + "x" + actualHeight + "]",10,20);
+		g2D.drawString("[" + actualWidth + "x" + actualHeight + "]",10,25);
 		g2D.drawString("[" + m_image.getWidth(this) + "x" + m_image.getHeight(this) + "]",10,60);
         Font font = new Font("Arial", Font.BOLD,  15);
         g2D.setFont(font);
 		g2D.setColor(textColor);
-		g2D.drawString("Zoom:" + ((int)(m_zoom*10))/10.0,10,40);
+		g2D.drawString("Zoom:" + ((int)(m_zoom*10))/10.0,10,45);
 		if (debug) {
 			int xbase=100;
 			int ybase=5;
 			g2D.setColor(Color.YELLOW);
 			g2D.drawString("("+x+","+y+")", 10, 10);
 			g2D.drawString("("+(x+actualWidth)+","+y+")", vieWerDim.width-75, 10);
-			g2D.drawString("("+(x+actualWidth)+","+(y+actualWidth)+")", vieWerDim.width-75, vieWerDim.height-6);
-			g2D.drawString("("+x+","+(y+actualWidth)+")", 10, vieWerDim.height-6);
+			g2D.drawString("("+(x+actualWidth)+","+(y+actualHeight)+")", vieWerDim.width-75, vieWerDim.height-6);
+			g2D.drawString("("+x+","+(y+actualHeight)+")", 10, vieWerDim.height-6);
+			g2D.setColor(Color.BLACK);
+			g2D.fillRect(xbase+75,ybase-3,690,17);
 			g2D.setColor(Color.CYAN);
 			g2D.drawString("("+(int)at.getTranslateX()+","+(int)at.getTranslateY()+")", xbase+80, ybase+10);	
 			g2D.setColor(Color.ORANGE);
-			// TODO actualWidth actualHeight incorrect
-			g2D.drawString("width,height["+actualWidth+"x"+actualHeight+"]   zoom:"+Math.round(m_zoom*10)/10+"   angle:" + 
+			g2D.drawString("width,height["+actualRealWidth+"x"+actualRealHeight+"]   zoom:"+Math.round(m_zoom*10)/10+"   angle:" + 
 							angle +"º  origX,oriY["+origX+"x"+origY+"]    desplX,desplY["+desplX+"x"+desplY+"]", xbase+150, ybase+10);
+
 			g2D.setColor(Color.RED);
 			g2D.setStroke(new BasicStroke(2));
 			g2D.drawOval((actualWidth/2)+((vieWerDim.width-actualWidth)/2)-5, (actualHeight/2)+((vieWerDim.height-actualHeight)/2)-5,10,10);
 
-			g2D.setColor(Color.WHITE);
-			g2D.drawRect(x-30,y-30,20,20);
-			g2D.setColor(Color.GREEN);
-			g2D.drawRect(x-5,y-5,10,10);
-			g2D.drawRect(x+actualWidth-5,y+actualHeight-5,10,10);
+//			g2D.setColor(Color.WHITE);
+//			g2D.drawRect(x-30,y-30,20,20);
+//			g2D.setColor(Color.GREEN);
+//			g2D.drawRect(x-5,y-5,10,10);
+//			g2D.drawRect(x+actualWidth-5,y+actualHeight-5,10,10);
+			
 			int xlim1 = (x-5)<=0?-5:x-5;
 			int ylim1 = (y-5)<=0?-5:y-5;
 			int xlim2 = (x-5)>vieWerDim.width-actualWidth?vieWerDim.width-5:x+actualWidth-5;
 			int ylim2 = (y-5)>vieWerDim.height-actualHeight?vieWerDim.height-5:y+actualHeight-5;
 			g2D.setColor(Color.RED);
-			g2D.drawOval((int)(xlim1*Math.cos(angle*Math.PI/180))+(int)(ylim1*Math.sin(angle*Math.PI/180)),
-							(int)(ylim1*Math.cos(angle*Math.PI/180))-(int)(xlim1*Math.sin(angle*Math.PI/180)),10,10);
+			g2D.drawOval((int)(xlim1*Math.cos(Math.toRadians(angle)))+(int)(ylim1*Math.sin(Math.toRadians(angle))),
+							(int)(ylim1*Math.cos(Math.toRadians(angle)))-(int)(xlim1*Math.sin(Math.toRadians(angle))),10,10);
 			g2D.setColor(Color.BLUE);
-			g2D.drawOval((int)(xlim2*Math.cos(angle*Math.PI/180)),ylim2+(int)(ylim2*Math.sin(angle*Math.PI/180)),10,10);
+			g2D.drawOval((int)(xlim2*Math.cos(Math.toRadians(angle))),ylim2+(int)(ylim2*Math.sin(Math.toRadians(angle))),10,10);
+			g2D.setColor(Color.CYAN);
+			g2D.drawRect((int)at.getTranslateX(),(int)at.getTranslateY(),10,10);
+//			int x4 = (int)((at.getTranslateX()+actualRealWidth)*Math.cos(Math.toRadians(angle)))+
+//						(int)((at.getTranslateY()+actualRealHeight)*Math.sin(Math.toRadians(angle)));
+//			int y4 = (int)((at.getTranslateY()+actualRealHeight)*Math.cos(Math.toRadians(angle)))-
+//						(int)((at.getTranslateX()+actualRealWidth)*Math.sin(Math.toRadians(angle)));
+			
+			int x2 = (int)(origX-((actualWidth-vieWerDim.width)))-desplX;
+			int y2 = (int)(origY-((actualHeight-vieWerDim.height)/2))-desplY;
+			
+			AffineTransform at2 = AffineTransform.getTranslateInstance(x2,y);
+			at2.rotate(Math.toRadians(angle+angleRotation)); //,(actualWidth/2),(actualHeight/2));
+			at2.scale(m_zoom,m_zoom);
+			
+			g2D.setColor(Color.WHITE);
+			g2D.drawRect((int)at2.getTranslateX(),(int)at2.getTranslateY(),10,10);
+//			System.out.println((int)at.getTranslateX()+","+(int)at.getTranslateY());
+			
 			g2D.setColor(Color.BLACK);
 			g2D.fillRect(10,100,150,70);
 			g2D.setColor(Color.LIGHT_GRAY);
 			g2D.drawString("xlim1,ylim1[" + xlim1 + "x" + ylim1 + "]",10,120);
 			g2D.drawString("xlim2,ylim2[" + xlim2 + "x" + ylim2 + "]",10,140);
-			g2D.drawString("xycalc[" + ((int)(xlim1*Math.cos(angle*Math.PI/180))+(int)(ylim1*Math.sin(angle*Math.PI/180))) + "," +
-						((int)(ylim1*Math.cos(angle*Math.PI/180))-(int)(xlim1*Math.sin(angle*Math.PI/180))) + "]",10,160);
+			g2D.drawString("xycalc[" + ((int)(xlim1*Math.cos(Math.toRadians(angle)))+(int)(ylim1*Math.sin(Math.toRadians(angle)))) + "," +
+						((int)(ylim1*Math.cos(Math.toRadians(angle)))-(int)(xlim1*Math.sin(Math.toRadians(angle)))) + "]",10,160);
 		}
 		
 //		System.out.println("\n-----------------------> RectX:" + dim.getWidth() + " - RectY:" + dim.getHeight() + "\n" +
@@ -378,6 +413,9 @@ public class JImage extends JPanel {
 	public void setActualOrig() {
 		origX = (int)(origX-desplX);
 		origY = (int)(origY-desplY);
+		desplX=0;
+		desplY=0;
+		repaint();
 	}
 
 	public void setData(byte[] data)
@@ -500,7 +538,21 @@ public class JImage extends JPanel {
 		repaint();
 	}
 	
-	
+	/**
+	 * Rotate image
+	 */
+	public void rotate(boolean clockwise) {
+		rotatingImage=true;
+		desplX=0;
+		desplY=0;
+		angleRotation= 2 * (clockwise?1:-1);
+//		System.out.println("angleRotation="+angleRotation + ",clockwise=" + clockwise);
+		angle+=angleRotation;
+		angleRotation=0;
+		repaint();
+		rotatingImage=false;
+	}
+		
 	/**
 	 * This method increments the zoom factor with the zoom percentage, to
 	 * create the zoom in effect

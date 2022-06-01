@@ -110,7 +110,7 @@ public class JImageViewer extends JInternalFrame {
 						File currentDir = new File("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\"); //prueba_"+(int)(Math.random() * 10000)+".jpg");
 						JFileChooser fc = new JFileChooser(currentDir);
 						fc.setDialogType(JFileChooser.SAVE_DIALOG);
-			            fc.setSelectedFile(new File("test.jpg"));
+			            fc.setSelectedFile(new File("test2.jpg"));
 			            fc.setFileFilter(new FileNameExtensionFilter("JPG file","jpg"));
 			            fc.setAcceptAllFileFilterUsed(true);
 			            int returnVal = fc.showSaveDialog(JImageViewer.this);
