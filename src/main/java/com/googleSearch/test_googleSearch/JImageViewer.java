@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
@@ -40,6 +41,7 @@ public class JImageViewer extends JInternalFrame {
 	public JButton jbtRotateRight = null;
 	public JButton jbtReset = null;
 	public JButton jbtClose = null;
+	public JCheckBox jckDebug = null;
 	private Image image = null;
 
 	
@@ -79,14 +81,14 @@ public class JImageViewer extends JInternalFrame {
 		SwingUtilities.setGridBagConstraints(gbc,0,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
 		jpImageButtons.add(jbtSave, gbc);
 
-		jbtRotateRight = new JButton("R->");
-		SwingUtilities.setGridBagConstraints(gbc,1,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
-		jpImageButtons.add(jbtRotateRight, gbc);
-		
 		jbtRotateLeft = new JButton("<-R");
-		SwingUtilities.setGridBagConstraints(gbc,2,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
+		SwingUtilities.setGridBagConstraints(gbc,1,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
 		jpImageButtons.add(jbtRotateLeft, gbc);
 
+		jbtRotateRight = new JButton("R->");
+		SwingUtilities.setGridBagConstraints(gbc,2,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
+		jpImageButtons.add(jbtRotateRight, gbc);
+		
 		jbtReset = new JButton("Reiniciar");
 		SwingUtilities.setGridBagConstraints(gbc,3,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
 		jpImageButtons.add(jbtReset, gbc);
@@ -94,6 +96,10 @@ public class JImageViewer extends JInternalFrame {
 		jbtClose = new JButton("Cerrar");
 		SwingUtilities.setGridBagConstraints(gbc,4,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
 		jpImageButtons.add(jbtClose, gbc);
+		
+		jckDebug = new JCheckBox("Debug");
+		SwingUtilities.setGridBagConstraints(gbc,5,0,1,1,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
+		jpImageButtons.add(jckDebug, gbc);
 		
 		this.setLayout(new GridBagLayout());
 		SwingUtilities.setGridBagConstraints(gbc,0,0,1,10,1.0,1.0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,new Insets(2,2,2,2),0,0);
@@ -110,7 +116,7 @@ public class JImageViewer extends JInternalFrame {
 						File currentDir = new File("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\"); //prueba_"+(int)(Math.random() * 10000)+".jpg");
 						JFileChooser fc = new JFileChooser(currentDir);
 						fc.setDialogType(JFileChooser.SAVE_DIALOG);
-			            fc.setSelectedFile(new File("test2.jpg"));
+			            //fc.setSelectedFile(new File("test2.jpg"));
 			            fc.setFileFilter(new FileNameExtensionFilter("JPG file","jpg"));
 			            fc.setAcceptAllFileFilterUsed(true);
 			            int returnVal = fc.showSaveDialog(JImageViewer.this);
@@ -172,6 +178,19 @@ public class JImageViewer extends JInternalFrame {
 					}
 				}
 			);
+			
+			jckDebug.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if (jckDebug.isSelected()) {
+							jImage.setDebug(true);
+						} else {
+							jImage.setDebug(false);
+						}
+						jImage.repaint();
+					}
+				}
+			);
 	
 		}
 
@@ -202,7 +221,7 @@ public class JImageViewer extends JInternalFrame {
 
 		jbtClose.requestFocus();
 		
-		jImage.setDebug(true);
+//		jImage.setDebug(true);
 	}
 
 	public void setViewerSizeImage(Dimension viewerSizeImage) {

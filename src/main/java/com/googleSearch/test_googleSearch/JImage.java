@@ -8,18 +8,22 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
 
 /**
 * This class is the Image Panel where the image
@@ -34,6 +38,7 @@ public class JImage extends JPanel {
 	private Image m_image = null;
 	private Dimension dim = new Dimension (800,600);
 	private AffineTransform at = null;
+	private float[] dashPattern = { 5, 5 };
 
 	private double m_zoomPercentage = 0.1;
 	private double init_m_zoom = 1.0;
@@ -119,6 +124,7 @@ public class JImage extends JPanel {
 						mouseX = e.getX();
 						mouseY = e.getY();
 						setActualOrig();
+						repaint();
 						//System.out.println("---------------------------");
 //						move(mouseX-e.getX(),mouseY-e.getY());
 						//System.out.println("mouseReleased (" + mouseX + "-" + mouseY + ")");
@@ -154,8 +160,11 @@ public class JImage extends JPanel {
 							move(mouseX-e.getX(),mouseY-e.getY());
 //							System.out.println("mouseDragged (" + mouseX + "->" + (mouseX-e.getX()) + "-" + mouseY + "->" + (mouseY-e.getY()) + ")");
 						} else if (javax.swing.SwingUtilities.isRightMouseButton(e)) {
-							boolean clockwise = e.getX()>lastMouseX;
+							int xdiff = e.getX()-lastMouseX;
+							int ydiff = e.getY()-lastMouseY;
 							lastMouseX = e.getX();
+							lastMouseY = e.getY();
+							boolean clockwise = (xdiff-ydiff)>0;
 							rotate(clockwise);
 						}
 					}
@@ -180,7 +189,11 @@ public class JImage extends JPanel {
 	public void setDebug(boolean debug) {
 		this.debug = debug;
 	}
-	
+
+	public boolean getDebug() {
+		return debug;
+	}
+
 	public void setTextColor(Color c)
 	{
 		textColor = c;
@@ -214,11 +227,6 @@ public class JImage extends JPanel {
 		}
 
 
-		int actualRealWidth=Math.abs((int)(m_zoom*((int)( m_image.getWidth(this)*Math.cos(Math.toRadians(angle)))+
-						(int)(m_image.getHeight(this)*Math.sin(Math.toRadians(angle))))));
-		int actualRealHeight=Math.abs((int)(m_zoom*((int)(m_image.getHeight(this)*Math.cos(Math.toRadians(angle)))-
-						(int)(m_image.getWidth(this)*Math.sin(Math.toRadians(angle))))));
-
 		actualWidth=(int)(m_zoom*m_image.getWidth(this));
 		actualHeight=(int)(m_zoom*m_image.getHeight(this));
 
@@ -233,7 +241,7 @@ public class JImage extends JPanel {
 		}
 
 		at = AffineTransform.getTranslateInstance(x,y);
-		at.rotate(Math.toRadians(angle+angleRotation),(actualWidth/2),(actualHeight/2));
+		at.rotate(Math.toRadians(angle),(actualWidth/2),(actualHeight/2));
 		at.scale(m_zoom,m_zoom);
 		
 		g2D.drawImage(m_image,at,this);
@@ -248,11 +256,10 @@ public class JImage extends JPanel {
 		g2D.fillRect(5,5,90,40);
 		g2D.setColor(textColor);
 		g2D.drawString("[" + actualWidth + "x" + actualHeight + "]",10,25);
-		g2D.drawString("[" + m_image.getWidth(this) + "x" + m_image.getHeight(this) + "]",10,60);
         Font font = new Font("Arial", Font.BOLD,  15);
         g2D.setFont(font);
 		g2D.setColor(textColor);
-		g2D.drawString("Zoom:" + ((int)(m_zoom*10))/10.0,10,45);
+		g2D.drawString("Zoom:" + ((int)(m_zoom*10))/10.0,10,40);
 		if (debug) {
 			int xbase=100;
 			int ybase=5;
@@ -262,52 +269,73 @@ public class JImage extends JPanel {
 			g2D.drawString("("+(x+actualWidth)+","+(y+actualHeight)+")", vieWerDim.width-75, vieWerDim.height-6);
 			g2D.drawString("("+x+","+(y+actualHeight)+")", 10, vieWerDim.height-6);
 			g2D.setColor(Color.BLACK);
-			g2D.fillRect(xbase+75,ybase-3,690,17);
-			g2D.setColor(Color.CYAN);
-			g2D.drawString("("+(int)at.getTranslateX()+","+(int)at.getTranslateY()+")", xbase+80, ybase+10);	
+			g2D.fillRect(xbase+65,ybase-3,625,17);
 			g2D.setColor(Color.ORANGE);
-			g2D.drawString("width,height["+actualRealWidth+"x"+actualRealHeight+"]   zoom:"+Math.round(m_zoom*10)/10+"   angle:" + 
-							angle +"º  origX,oriY["+origX+"x"+origY+"]    desplX,desplY["+desplX+"x"+desplY+"]", xbase+150, ybase+10);
+			g2D.drawString("width,height[" + m_image.getWidth(this) + "x" + m_image.getHeight(this) + "]   zoom:"+Math.round(m_zoom*10)/10+"   angle:" + 
+							angle +"º  origX,oriY["+origX+"x"+origY+"]    desplX,desplY["+desplX+"x"+desplY+"]", xbase+70, ybase+10);
+
+			int rad = 8;
+
+			int xlim1 = x;
+			int ylim1 = y;
+			int xlim2 = x+actualWidth;
+			int ylim2 = y+actualHeight;
+
+			int centerX=origX+(actualWidth/2)+((vieWerDim.width-actualWidth)/2)-desplX;
+			int centerY=origY+(actualHeight/2)+((vieWerDim.height-actualHeight)/2)-desplY;
 
 			g2D.setColor(Color.WHITE);
 			g2D.setStroke(new BasicStroke(2));
-			int centerX=origX+(actualWidth/2)+((vieWerDim.width-actualWidth)/2)-5;
-			int centerY=origY+(actualHeight/2)+((vieWerDim.height-actualHeight)/2)-5;
-			g2D.drawOval(centerX,centerY,10,10);
+			g2D.drawOval(centerX,centerY,rad*2,rad*2);
 
-//			g2D.setColor(Color.WHITE);
-//			g2D.drawRect(x-30,y-30,20,20);
-//			g2D.setColor(Color.GREEN);
-//			g2D.drawRect(x-5,y-5,10,10);
-//			g2D.drawRect(x+actualWidth-5,y+actualHeight-5,10,10);
-			
-			int xlim1 = (x-5)<=0?-5:x-5;
-			int ylim1 = (y-5)<=0?-5:y-5;
-			int xlim2 = (x-5)>vieWerDim.width-actualRealWidth?vieWerDim.width-5:x+actualWidth-5;
-			int ylim2 = (y-5)>vieWerDim.height-actualRealHeight?vieWerDim.height-5:y+actualHeight-5;
-			at = new AffineTransform(1.0,0.0,0.0,1.0,0.0,0.0);
-			at.rotate(Math.toRadians(angle),centerX,centerY);
-			g2D.setTransform(at);
+			AffineTransform atVerts = new AffineTransform(1.0,0.0,0.0,1.0,0.0,0.0);
+			atVerts.rotate(Math.toRadians(angle),centerX,centerY);
+			Point2D a1 = new Point2D.Double(xlim1,ylim1);
+			Point2D a2 = new Point2D.Double(xlim2,ylim1);
+			Point2D a3 = new Point2D.Double(xlim1,ylim2);
+			Point2D a4 = new Point2D.Double(xlim2,ylim2);
+
+			g2D.setTransform(atVerts);
 			g2D.setColor(Color.RED);
-			g2D.drawOval(xlim1,ylim1,10,10);
+			g2D.drawString("a1",(int)a1.getX(),(int)a1.getY());
+			g2D.drawOval((int)a1.getX(),(int)a1.getY(),1,1);
 			g2D.setColor(Color.BLUE);
-			g2D.drawOval(xlim2,ylim1,10,10);
+			g2D.drawString("a2",(int)a2.getX(),(int)a2.getY());
+			g2D.drawOval((int)a2.getX(),(int)a2.getY(),1,1);
 			g2D.setColor(Color.GREEN);
-			g2D.drawOval(xlim1,ylim2,10,10);
+			g2D.drawString("a3",(int)a3.getX(),(int)a3.getY());
+			g2D.drawOval((int)a3.getX(),(int)a3.getY(),1,1);
 			g2D.setColor(Color.ORANGE);
-			g2D.drawOval(xlim2,ylim2,10,10);
+			g2D.drawString("a4",(int)a4.getX(),(int)a4.getY());
+			g2D.drawOval((int)a4.getX(),(int)a4.getY(),1,1);
+
 			
 			at = new AffineTransform(1.0,0.0,0.0,1.0,0.0,0.0);
 			g2D.setTransform(at);
-			
-			
+			Point2D a1t = atVerts.transform(a1, new Point2D.Double());
+			Point2D a2t = atVerts.transform(a2, new Point2D.Double());
+			Point2D a3t = atVerts.transform(a3, new Point2D.Double());
+			Point2D a4t = atVerts.transform(a4, new Point2D.Double());
+			int[] axt = {(int)a1t.getX(),(int)a2t.getX(),(int)a3t.getX(),(int)a4t.getX()};
+			int[] ayt = {(int)a1t.getY(),(int)a2t.getY(),(int)a3t.getY(),(int)a4t.getY()};
+			Util.quickSort(axt, 0, axt.length-1);
+			Util.quickSort(ayt, 0, ayt.length-1);
+			g2D.setColor(Color.GRAY);
+			g2D.drawString("v1",axt[0],ayt[0]);
+			g2D.drawOval(axt[0],ayt[0],1,1);
+			g2D.drawString("v2",axt[3],ayt[3]);
+			g2D.drawOval(axt[3],ayt[3],1,1);
+			g2D.setStroke(new BasicStroke((float)1,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10,dashPattern,0));
+			g2D.drawRect(axt[0],ayt[0],axt[3]-axt[0],ayt[3]-ayt[0]);
 			g2D.setColor(Color.BLACK);
-			g2D.fillRect(10,100,150,70);
-			g2D.setColor(Color.LIGHT_GRAY);
-			g2D.drawString("xlim1,ylim1[" + xlim1 + "x" + ylim1 + "]",10,120);
-			g2D.drawString("xlim2,ylim2[" + xlim2 + "x" + ylim2 + "]",10,140);
-			g2D.drawString("xycalc[" + ((int)(xlim1*Math.cos(Math.toRadians(angle)))+(int)(ylim1*Math.sin(Math.toRadians(angle)))) + "," +
-						((int)(ylim1*Math.cos(Math.toRadians(angle)))-(int)(xlim1*Math.sin(Math.toRadians(angle)))) + "]",10,160);
+			g2D.fillRect(10,100,115,70);			
+			g2D.setColor(Color.GRAY);
+			g2D.drawRect(5,100,120,70);
+			g2D.setColor(Color.WHITE);
+			g2D.drawString("[" + (axt[3]-axt[0]) + "x" + (ayt[3]-ayt[0]) + "]",10,120);
+			g2D.drawString("axMin[" + axt[0] + "," + ayt[0] + "]",10,140);
+			g2D.drawString("axMax[" + axt[3] + "," + ayt[3] + "]",10,160);
+
 		}
 		
 //		System.out.println("\n-----------------------> RectX:" + dim.getWidth() + " - RectY:" + dim.getHeight() + "\n" +
@@ -410,7 +438,7 @@ public class JImage extends JPanel {
 		origY = (int)(origY-desplY);
 		desplX=0;
 		desplY=0;
-		repaint();
+//		repaint();
 	}
 
 	public void setData(byte[] data)
@@ -467,31 +495,69 @@ public class JImage extends JPanel {
 	}
 
 	public BufferedImage getRenderedImage() {
-		BufferedImage src = (BufferedImage)getImage();
-	
-		actualWidth=(int)(m_zoom*m_image.getWidth(this));
-		actualHeight=(int)(m_zoom*m_image.getHeight(this));
-		
+
+//		vieWerDim = this.getSize();
+//		actualWidth=(int)(m_zoom*m_image.getWidth(this));
+//		actualHeight=(int)(m_zoom*m_image.getHeight(this));
+
 		int x = (int)(origX-((actualWidth-vieWerDim.width)/2))-desplX;
 		int y = (int)(origY-((actualHeight-vieWerDim.height)/2))-desplY;
+
+		int xlim1 = x;
+		int ylim1 = y;
+		int xlim2 = x+actualWidth;
+		int ylim2 = y+actualHeight;
+
+		int centerX=origX+(actualWidth/2)+((vieWerDim.width-actualWidth)/2)-desplX;
+		int centerY=origY+(actualHeight/2)+((vieWerDim.height-actualHeight)/2)-desplY;
+
+		AffineTransform atVerts = new AffineTransform(1.0,0.0,0.0,1.0,0.0,0.0);
+		atVerts.rotate(Math.toRadians(angle),centerX,centerY);
+		Point2D a1 = new Point2D.Double(xlim1,ylim1);
+		Point2D a2 = new Point2D.Double(xlim2,ylim1);
+		Point2D a3 = new Point2D.Double(xlim1,ylim2);
+		Point2D a4 = new Point2D.Double(xlim2,ylim2);
 		
-		int xlim1 = x<=0?0:x;
-		int ylim1 = y<=0?0:y;
-		int xlim2 = x>=vieWerDim.width-actualWidth?vieWerDim.width:x+actualWidth;
-		int ylim2 = y>=vieWerDim.height-actualHeight?vieWerDim.height:y+actualHeight;
-		int xdespl = x<=0?x:0;
-		int ydespl = y<=0?y:0;		
+		Point2D a1t = atVerts.transform(a1, new Point2D.Double());
+		Point2D a2t = atVerts.transform(a2, new Point2D.Double());
+		Point2D a3t = atVerts.transform(a3, new Point2D.Double());
+		Point2D a4t = atVerts.transform(a4, new Point2D.Double());
+		int[] axt = {(int)a1t.getX(),(int)a2t.getX(),(int)a3t.getX(),(int)a4t.getX()};
+		int[] ayt = {(int)a1t.getY(),(int)a2t.getY(),(int)a3t.getY(),(int)a4t.getY()};
+		Util.quickSort(axt, 0, axt.length-1);
+		Util.quickSort(ayt, 0, ayt.length-1);
+
+		BufferedImage bi = null;
+		boolean debugBak = getDebug();
+		setDebug(false);
+		repaint();
+		try {
+			if (axt[0]<0) {
+				axt[0]=0;
+			}
+			if (ayt[0]<0) {
+				ayt[0]=0;
+			}
+			if (axt[3]>vieWerDim.width) {
+				axt[3]=vieWerDim.width;
+			}
+			if (ayt[3]>vieWerDim.height) {
+				ayt[3]=vieWerDim.height;
+			}
+			
+			Rectangle region = new Rectangle(axt[0],ayt[0],axt[3]-axt[0],ayt[3]-ayt[0]);
+			logger.debug("axt[0]="+axt[0]+",ayt[0]="+ayt[0]+",axt[3]-axt[0]="+(axt[3]-axt[0])+",ayt[3]-ayt[0]="+(ayt[3]-ayt[0]));
+			bi = ScreenImage.createImage(this,region);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		setDebug(debugBak);
+		repaint();
 		
-		double width=xlim2-xlim1;
-		double height=ylim2-ylim1;
-		BufferedImage dst = new BufferedImage((int)width, (int)height, src.getType());
-		Graphics2D g2 = dst.createGraphics();
-		repaintGraphics(g2, actualWidth, actualHeight, xdespl, ydespl);
-		g2.dispose();
-		return dst;
+		return bi;
 	}
 
-	 
+
 	/**
 	 * This method is overriden to return the preferred size which will be
 	 * the width and height of the image plus the zoomed width width and
@@ -663,5 +729,6 @@ public class JImage extends JPanel {
 			ex.printStackTrace();
 		}
 	}
+	
 
 }
