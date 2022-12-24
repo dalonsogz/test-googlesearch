@@ -12,7 +12,9 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -146,48 +148,51 @@ public class FindImageJSoup {
 					}
 					doc = Jsoup.parse(String.valueOf(tmp));
 				} else {
-					doc=Jsoup.connect(fullUrl).userAgent(ua).timeout(100 * 1000).get();
+					Map<String,String> cookies = new HashMap<String,String>();
+					cookies.put("__Secure-1PAPISID","GU5BHEoeda98A2vX/AaN2dbSHTnhLnIyJ5");
+					cookies.put("__Secure-1PSID","SAhgxd0u79wMbe2URyd7NwWET5IkVgvfcDTAye2CHD9TuUFrs-g1j10M-KUbjjc0msRBFg.");
+					cookies.put("__Secure-3PAPISID","GU5BHEoeda98A2vX/AaN2dbSHTnhLnIyJ5");
+					cookies.put("__Secure-3PSID","SAhgxd0u79wMbe2URyd7NwWET5IkVgvfcDTAye2CHD9TuUFrEeamyqHPtGtUncjUEQT7lw.");
+					cookies.put("1P_JAR","2022-12-24-1");
+					cookies.put("AEC","AakniGO7ev-mbjFfVJPB1e1OkmGIA5H5xiZJVJw3gJxzxeYdOvCnZ_rIw8Y");
+					cookies.put("APISID","2uq4e-5j6wRlYlo-/AoY5wAXJEzdQZKz82");
+					cookies.put("CONSENT","YES+yt.433864792.es+FX+959");
+					cookies.put("HSID","Ak-cT4_NwlMXC18rM");
+					cookies.put("NID","511=UZFtjZycgH1bFF8jL62YoR9OF7VTf9DK2hDEOT66ifYwODjHTmBo3fevmDR522_fZCD1dyBvM2NLC6p54pSt3FNs_Gozr0SSUxb2FSelQf-QibIVIxM2NeHen-B8c1h_it8br4icDwqCmCtKfCB9sMAPUVUr5M0BRFY1UI8hego8yEK0Aao2z48N1dx2rzJbv5Ce-qXk_zpGM99o461bAhVWRzGsWXHWWPqMSVmcVXUeldA0n5ckrH3ckD1vaNckIvxGrPAJOOW96Fhm7A2f-1TpD00kWtIdjdK4YU-CkAIOjR9eHiT2uvrtbCzH36kpmYX0YhnUIdaUz6ZhqBggCz4ujea1JdmlYI6CatN0j4OLVP_0cKr9dNa64N1dMNMipPb6JBN1RQ");
+					cookies.put("OGPC","19022622-1:");
+					cookies.put("SAPISID","GU5BHEoeda98A2vX/AaN2dbSHTnhLnIyJ5");
+					cookies.put("SID","SAhgxd0u79wMbe2URyd7NwWET5IkVgvfcDTAye2CHD9TuUFrb0NDHbbrn9_pAmLq1VadIw.");
+					cookies.put("SSID","AtyJKzGMdjdcsU_Qs");
+					cookies.put("DV","Q-0lCBpLVXsQcOIVpget2HeaNOcbVBg");
+					cookies.put("OTZ","6806633_52_52_123900_48_436380");
+					int maxBodySize = 2048000;//2MB (default is 1MB) 0 for unlimited size
+					doc=Jsoup.connect(fullUrl).userAgent(ua).cookies(cookies).timeout(100 * 1000).maxBodySize(maxBodySize).get();
 				}
 				
-			    try {
-			        FileWriter myWriter = new FileWriter("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.html");
-			        myWriter.write(doc.toString());
-			        myWriter.close();
-			        System.out.println("Successfully wrote to the file.");
-			      } catch (IOException e) {
-			        System.out.println("An error occurred.");
-			        e.printStackTrace();
-			      }
+//				writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.html",doc.toString());
 			    
 			    ArrayList<Element> elementsAll = doc.getAllElements();
-//				int index = 0;
+				int index = 0;
 				String jsonData="";
 				for (Element element : elementsAll) {
 					String str=element.toString();
 					if (str.contains("AF_initDataCallback") && str.contains("hash: '2'") && !str.contains("<body")) {
-//						logger.debug("index="+index);
+						logger.debug("index="+index);
 						jsonData = element.data().substring(element.data().indexOf('(')+1,element.data().lastIndexOf(')'));
 					}
-//					index++;
+					index++;
 				}
 				
-			    try {
-			        FileWriter myWriter = new FileWriter("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.json");
-//			        jsonData = jsonData.replaceAll("\\\"","\\\\\"");  // '"' -> '\"'
-//			        jsonData = jsonData.replaceAll("\\\\\\\\\\\"","\\\\\\\\\\\\\\\"");   // '\\"' -> '\\\"'
-//			        jsonData = jsonData.replaceAll("', data:","\", \"data\":\"");
-//			        jsonData = jsonData.replaceAll(", sideChannel:","\", \"sideChannel\":");
-			        jsonData = jsonData.replaceAll("key: '","\"key\":\"");
-			        jsonData = jsonData.replaceAll("', hash: '","\", \"hash\":\"");
-			        jsonData = jsonData.replaceAll("', data:","\", \"data\":");
-			        jsonData = jsonData.replaceAll(", sideChannel:",", \"sideChannel\":");
-			        myWriter.write(jsonData);
-			        myWriter.close();
-			        System.out.println("Successfully wrote to the file.");
-			      } catch (IOException e) {
-			        System.out.println("An error occurred.");
-			        e.printStackTrace();
-			      }
+//		        writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava0.json",jsonData);
+//		        jsonData = jsonData.replaceAll("\\\"","\\\\\"");  // '"' -> '\"'
+//		        jsonData = jsonData.replaceAll("\\\\\\\\\\\"","\\\\\\\\\\\\\\\"");   // '\\"' -> '\\\"'
+//		        jsonData = jsonData.replaceAll("', data:","\", \"data\":\"");
+//		        jsonData = jsonData.replaceAll(", sideChannel:","\", \"sideChannel\":");
+		        jsonData = jsonData.replaceAll("key: '","\"key\":\"");
+		        jsonData = jsonData.replaceAll("', hash: '","\", \"hash\":\"");
+		        jsonData = jsonData.replaceAll("', data:","\", \"data\":");
+		        jsonData = jsonData.replaceAll(", sideChannel:",", \"sideChannel\":");
+		        writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.json",jsonData);
 			    
 			    //logger.debug("jsonData:" + jsonData);
 			    JSONParser parser = new JSONParser();
@@ -196,21 +201,31 @@ public class FindImageJSoup {
 
 			    JSONArray jsonResults = null;
 			    boolean found = false;
+			    index = 0;
 			    for (Object dataArray: jArray) {
+			    	System.out.println("index:"+index++);
+//			    	if (index<56) continue;
 				    //jObject[31][0]   [12][2][0-103]
-				    // [31][0]
+				    // [31][0]										// [56] [1] [0-103]         
 				    if (dataArray != null && dataArray instanceof JSONArray) {
 				    	for (Object jArrayData: (JSONArray)dataArray) {
 					    	// [31][0][12][0]
 						    if (jArrayData != null && jArrayData instanceof JSONArray) {
+						    	writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\jarraydata.json",jArrayData.toString());
 						    	for (Object jData: (JSONArray)jArrayData) {
-						    		if (jData != null && jData instanceof JSONArray &&
-							    	 ((JSONArray)jData).size()>2 && ((JSONArray)jData).get(0)!=null && ((JSONArray)jData).get(0).equals("GRID_STATE0") &&
-							    	 ((JSONArray)jData).get(2)!=null && (((JSONArray)jData).get(2) instanceof JSONArray)) {
-						    			jsonResults = (JSONArray)((JSONArray)jData).get(2);
-						    			found = true;
-						    			break;
-							    	}
+						    		if (jData != null && jData instanceof JSONArray) {
+						    			if ( ((JSONArray)jData).get(0) != null && ((JSONArray)jData).get(0) instanceof JSONArray) {
+						    				if ( ((JSONArray)((JSONArray)jData).get(0)).get(0) != null && ((JSONArray)((JSONArray)jData).get(0)).get(0) instanceof JSONArray) {
+							    				if ( ((JSONArray)((JSONArray)((JSONArray)jData).get(0)).get(0)).get(0) != null && ((JSONArray)((JSONArray)((JSONArray)jData).get(0)).get(0)).get(0) instanceof JSONObject) {
+									    			if ( ((JSONArray)((JSONArray)jData).get(0)).get(1) != null && ((JSONArray)((JSONArray)jData).get(0)).get(1) instanceof JSONArray) {
+								    					jsonResults = (JSONArray)((JSONArray)((JSONArray)((JSONArray)jData).get(0)).get(1)).get(0);
+										    			found = true;
+										    			break;
+									    			}
+							    				}
+									    	}
+						    			}
+						    		}
 						    	}
 						    }
 						    if (found) break;
@@ -224,13 +239,19 @@ public class FindImageJSoup {
 //				
 //				mapper = new ObjectMapper();
 
+		    	writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\jsonResults.json",jsonResults.toJSONString());
 			    for (Object jsonArray:jsonResults) {
 			    	totalCounter++;
-			    	JSONArray item = (JSONArray)((JSONArray)jsonArray).get(1);
+//			    	JSONArray item = (JSONArray)((JSONArray)jsonArray).get(1);
+			    	JSONArray item = (JSONArray)jsonArray;
 			    	if (item==null) {
 			    		continue;
 			    	}
-			    	findResult = new FindResult(item);
+			    	try {
+			    		findResult = new FindResult(item);
+			    	} catch (Exception e) {
+			    		continue;
+			    	}
 
 		        	if (counter==numResults) break;
 
@@ -279,6 +300,26 @@ public class FindImageJSoup {
 		return findResults;
 	}
 
+	private void writeFile (String filepath,String str) {
+		FileWriter myWriter = null;
+	    try {
+	        myWriter = new FileWriter(filepath);
+	        myWriter.write(str);
+	        myWriter.close();
+	        System.out.println("Successfully wrote to the file ("+filepath+").");
+	      } catch (IOException e) {
+	        System.out.println("An error occurred.");
+	        e.printStackTrace();
+	      } finally {
+	    	  try {
+	    		  myWriter.close();
+	    	  } catch (Exception e) {
+	  	        System.out.println("Error closing file (\"+filepath+\").");
+		        e.printStackTrace();  
+	    	  }
+	      }
+	}
+	
 	private static String removeExcludedWords(String str,String[] strsExcluded) {
 		
 		if(str!=null && !str.isEmpty() && strsExcluded!=null && strsExcluded.length>0) {

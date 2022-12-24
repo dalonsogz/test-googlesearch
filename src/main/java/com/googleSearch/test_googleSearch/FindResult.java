@@ -6,9 +6,13 @@ import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -73,9 +77,12 @@ public class FindResult implements Serializable {
 		thumbnailWidth = getIntParam(node,"tw");
 	}
 	
-	public FindResult(JSONArray jsonArray) {
+	public FindResult(JSONArray jsonArrayAux) {
 		try {
 
+			JSONObject jsonObject = (JSONObject)((JSONArray)jsonArrayAux.get(0)).get(0);
+			ArrayList values = new ArrayList(jsonObject.values());
+			JSONArray jsonArray = (JSONArray)((JSONArray)values.get(0)).get(1);
 			id = (String)jsonArray.get(1);
 			JSONArray jsonImage = (JSONArray)jsonArray.get(3);
 			imageURL = new URL(jsonImage.get(0).toString());
@@ -93,16 +100,20 @@ public class FindResult implements Serializable {
 			
 			rgbInfo = (String)jsonArray.get(6);
 			
-			HashMap jsonImgData = (HashMap)jsonArray.get(9);
-			JSONArray jsonImgDataMain = (JSONArray)jsonImgData.get("2003");
-			imgHash = jsonImgDataMain.get(1).toString();
-			siteURL = new URL(jsonImgDataMain.get(2).toString());
-
-			imgSiteDesc = jsonImgDataMain.get(3).toString();
-			imgSiteName = jsonImgDataMain.get(12).toString();
-			imgSiteDomain = jsonImgDataMain.get(17).toString();
+//			HashMap jsonImgData = (HashMap)jsonArray.get(22);
+////			JSONArray jsonImgDataMain = (JSONArray)jsonImgData.get("2008");
+//			JSONArray jsonImgDataMain = (JSONArray)new ArrayList(jsonImgData.values()).get(0);
+//			imgHash = jsonImgDataMain.get(1).toString();
+//			siteURL = new URL(jsonImgDataMain.get(2).toString());
+//
+//			imgSiteDesc = jsonImgDataMain.get(3).toString();
+//			imgSiteName = jsonImgDataMain.get(12).toString();
+//			imgSiteDomain = jsonImgDataMain.get(17).toString();
 		} catch (MalformedURLException mue) {
 			logger.error("Malformed URL:"+mue.getMessage()); // + jsonImgDataMain.get(2).toString());
+		} catch (Exception e) {
+			logger.error("Unexpected Exception:"+e.getMessage());
+			throw e;
 		}
 	}
 
