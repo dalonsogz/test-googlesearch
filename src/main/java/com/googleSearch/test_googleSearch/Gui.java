@@ -79,6 +79,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	private static String PARAMTARGETDIR = "targetDir";
 	private static String PARAMPROXYHOST = "proxyHost";
 	private static String PARAMPROXYPORT = "proxyPort";
+	private static String PARAMGOOGLECOOKIECONSENT = "googleCookieConsent";
 
 	private static String outputDir = null;
 	private static String tempDir = null;
@@ -88,6 +89,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 	private static String targetDir = null;
 	private static String proxyHost = null;
 	private static String proxyPort = null;
+	private static String googleCookieConsent;
 	/////////////////////////////
 	private final static String LISTA_HECHO = "lista_hecho.log";
 	private final static ExtensionsFilter EXT_FILTER = new ExtensionsFilter(new String[] {".iso"});
@@ -1041,7 +1043,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
 					logger.debug("question:"+ question);
 			       	ArrayList<FindResult> findResults = fij.findImage(question,searchMods, userAgent,numResults,widthParam,heightParam,
 			       			sizeMarginParam,widthMarginParam,heightMarginParam,
-			       			proxyHost,(proxyPort!=null&&!proxyPort.isEmpty())?Integer.parseInt(proxyPort):null);
+			       			proxyHost,(proxyPort!=null&&!proxyPort.isEmpty())?Integer.parseInt(proxyPort):null,googleCookieConsent);
 //			       	Util.writeSerializaedObject(findResults, "findResults");
 //			       	ArrayList<FindResult> findResults = (ArrayList<FindResult>)Util.readSerializedObject("findResults");
 //					
@@ -1323,6 +1325,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
             targetDir = prop.getProperty(PARAMTARGETDIR).toString();
             proxyHost = prop.getProperty(PARAMPROXYHOST).toString();
             proxyPort = prop.getProperty(PARAMPROXYPORT).toString();
+			googleCookieConsent = prop.get(PARAMGOOGLECOOKIECONSENT).toString();
 
             logger.info("-------------------------------------------------------- Configuration params --------------------------------------------------------",this);
             logger.info("outputDir=" + outputDir,this);
@@ -1333,6 +1336,7 @@ public class Gui extends JFrame implements LoggerComponent,JImagePanelListener {
             logger.info("baseDir=" + targetDir,this);
             logger.info("proxyHost=" + proxyHost,this);
             logger.info("proxyPort=" + proxyPort,this);
+			logger.info("googleCookieConsent=" + googleCookieConsent,this);
             logger.info("--------------------------------------------------------------------------------------------------------------------------------------",this);
 
         } catch (Exception e) {

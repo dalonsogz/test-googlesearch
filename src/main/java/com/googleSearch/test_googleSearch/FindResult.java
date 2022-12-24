@@ -113,6 +113,9 @@ public class FindResult implements Serializable {
 			logger.error("Malformed URL:"+mue.getMessage()); // + jsonImgDataMain.get(2).toString());
 		} catch (Exception e) {
 			logger.error("Unexpected Exception:"+e.getMessage());
+			for (StackTraceElement stackTraceElement:e.getStackTrace()) {
+				logger.error("\t"+stackTraceElement.toString());
+			}
 			throw e;
 		}
 	}

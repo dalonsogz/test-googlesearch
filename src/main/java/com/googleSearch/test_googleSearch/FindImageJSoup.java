@@ -75,11 +75,11 @@ public class FindImageJSoup {
 
 	public ArrayList<FindResult> findImage(String question, String questionMods, String ua, int numResults, Integer width, Integer height, 
 			Float sizeMargin, Integer widthMargin, Integer heightMargin) {
-		return findImage(question, questionMods, ua, numResults, width, height, sizeMargin, widthMargin, heightMargin, null,null);
+		return findImage(question, questionMods, ua, numResults, width, height, sizeMargin, widthMargin, heightMargin, null,null, null);
 	}
 
 	public ArrayList<FindResult> findImage(String question, String questionMods, String ua, int numResults, Integer width, Integer height, 
-			Float sizeMargin, Integer widthMargin, Integer heightMargin, String proxyHost, Integer proxyPort) {
+			Float sizeMargin, Integer widthMargin, Integer heightMargin, String proxyHost, Integer proxyPort, String googleCookieConsent) {
 		
 		ArrayList<FindResult> findResults = null;
 		String googleUrl=null;
@@ -149,22 +149,7 @@ public class FindImageJSoup {
 					doc = Jsoup.parse(String.valueOf(tmp));
 				} else {
 					Map<String,String> cookies = new HashMap<String,String>();
-					cookies.put("__Secure-1PAPISID","GU5BHEoeda98A2vX/AaN2dbSHTnhLnIyJ5");
-					cookies.put("__Secure-1PSID","SAhgxd0u79wMbe2URyd7NwWET5IkVgvfcDTAye2CHD9TuUFrs-g1j10M-KUbjjc0msRBFg.");
-					cookies.put("__Secure-3PAPISID","GU5BHEoeda98A2vX/AaN2dbSHTnhLnIyJ5");
-					cookies.put("__Secure-3PSID","SAhgxd0u79wMbe2URyd7NwWET5IkVgvfcDTAye2CHD9TuUFrEeamyqHPtGtUncjUEQT7lw.");
-					cookies.put("1P_JAR","2022-12-24-1");
-					cookies.put("AEC","AakniGO7ev-mbjFfVJPB1e1OkmGIA5H5xiZJVJw3gJxzxeYdOvCnZ_rIw8Y");
-					cookies.put("APISID","2uq4e-5j6wRlYlo-/AoY5wAXJEzdQZKz82");
-					cookies.put("CONSENT","YES+yt.433864792.es+FX+959");
-					cookies.put("HSID","Ak-cT4_NwlMXC18rM");
-					cookies.put("NID","511=UZFtjZycgH1bFF8jL62YoR9OF7VTf9DK2hDEOT66ifYwODjHTmBo3fevmDR522_fZCD1dyBvM2NLC6p54pSt3FNs_Gozr0SSUxb2FSelQf-QibIVIxM2NeHen-B8c1h_it8br4icDwqCmCtKfCB9sMAPUVUr5M0BRFY1UI8hego8yEK0Aao2z48N1dx2rzJbv5Ce-qXk_zpGM99o461bAhVWRzGsWXHWWPqMSVmcVXUeldA0n5ckrH3ckD1vaNckIvxGrPAJOOW96Fhm7A2f-1TpD00kWtIdjdK4YU-CkAIOjR9eHiT2uvrtbCzH36kpmYX0YhnUIdaUz6ZhqBggCz4ujea1JdmlYI6CatN0j4OLVP_0cKr9dNa64N1dMNMipPb6JBN1RQ");
-					cookies.put("OGPC","19022622-1:");
-					cookies.put("SAPISID","GU5BHEoeda98A2vX/AaN2dbSHTnhLnIyJ5");
-					cookies.put("SID","SAhgxd0u79wMbe2URyd7NwWET5IkVgvfcDTAye2CHD9TuUFrb0NDHbbrn9_pAmLq1VadIw.");
-					cookies.put("SSID","AtyJKzGMdjdcsU_Qs");
-					cookies.put("DV","Q-0lCBpLVXsQcOIVpget2HeaNOcbVBg");
-					cookies.put("OTZ","6806633_52_52_123900_48_436380");
+					cookies.put("CONSENT",googleCookieConsent);
 					int maxBodySize = 2048000;//2MB (default is 1MB) 0 for unlimited size
 					doc=Jsoup.connect(fullUrl).userAgent(ua).cookies(cookies).timeout(100 * 1000).maxBodySize(maxBodySize).get();
 				}
