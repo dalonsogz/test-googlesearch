@@ -154,21 +154,25 @@ public class FindImageJSoup {
 					doc=Jsoup.connect(fullUrl).userAgent(ua).cookies(cookies).timeout(100 * 1000).maxBodySize(maxBodySize).get();
 				}
 				
-//				writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.html",doc.toString());
+				writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.html",doc.toString());
 			    
 			    ArrayList<Element> elementsAll = doc.getAllElements();
 				int index = 0;
 				String jsonData="";
+				String startString = "google.plm(r);})();(function(){var m=";
+				String endString = "var a=m;";
 				for (Element element : elementsAll) {
 					String str=element.toString();
-					if (str.contains("AF_initDataCallback") && str.contains("hash: '2'") && !str.contains("<body")) {
+//					if (str.contains("AF_initDataCallback") && str.contains("hash: '2'") && !str.contains("<body")) {
+					if (str.contains(startString)) {
 						logger.debug("index="+index);
-						jsonData = element.data().substring(element.data().indexOf('(')+1,element.data().lastIndexOf(')'));
+						jsonData = element.data().substring(element.data().indexOf(startString)+startString.length(),element.data().lastIndexOf(endString)-1);
+						break;
 					}
 					index++;
 				}
-				
-//		        writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava0.json",jsonData);
+/*
+		        writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava0.json",jsonData);
 //		        jsonData = jsonData.replaceAll("\\\"","\\\\\"");  // '"' -> '\"'
 //		        jsonData = jsonData.replaceAll("\\\\\\\\\\\"","\\\\\\\\\\\\\\\"");   // '\\"' -> '\\\"'
 //		        jsonData = jsonData.replaceAll("', data:","\", \"data\":\"");
@@ -178,13 +182,14 @@ public class FindImageJSoup {
 		        jsonData = jsonData.replaceAll("', data:","\", \"data\":");
 		        jsonData = jsonData.replaceAll(", sideChannel:",", \"sideChannel\":");
 		        writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\testGOWJava.json",jsonData);
-			    
+			    */
 			    //logger.debug("jsonData:" + jsonData);
 			    JSONParser parser = new JSONParser();
 			    JSONObject jObject =  (JSONObject) parser.parse(jsonData);
-			    JSONArray jArray = (JSONArray)jObject.get("data");
-
 			    JSONArray jsonResults = null;
+
+/*
+			    JSONArray jArray = (JSONArray)jObject.get("data");
 			    boolean found = false;
 			    index = 0;
 			    for (Object dataArray: jArray) {
@@ -225,10 +230,12 @@ public class FindImageJSoup {
 //				mapper = new ObjectMapper();
 
 		    	writeFile("E:\\java\\projects\\test-googleSearch\\testFolder\\pics\\jsonResults.json",jsonResults.toJSONString());
-			    for (Object jsonArray:jsonResults) {
+*/
+
+			    for (Object key:jObject.keySet()) {
 			    	totalCounter++;
 //			    	JSONArray item = (JSONArray)((JSONArray)jsonArray).get(1);
-			    	JSONArray item = (JSONArray)jsonArray;
+			    	JSONArray item = (JSONArray)jObject.get(key.toString());
 			    	if (item==null) {
 			    		continue;
 			    	}

@@ -80,35 +80,22 @@ public class FindResult implements Serializable {
 	public FindResult(JSONArray jsonArrayAux) {
 		try {
 
-			JSONObject jsonObject = (JSONObject)((JSONArray)jsonArrayAux.get(0)).get(0);
-			ArrayList values = new ArrayList(jsonObject.values());
-			JSONArray jsonArray = (JSONArray)((JSONArray)values.get(0)).get(1);
-			id = (String)jsonArray.get(1);
-			JSONArray jsonImage = (JSONArray)jsonArray.get(3);
+			JSONArray jsonImage = (JSONArray)((JSONArray)jsonArrayAux.get(1)).get(3);
 			imageURL = new URL(jsonImage.get(0).toString());
 			imageHeight = ((Long)jsonImage.get(1)).intValue();
 			imageWidth = ((Long)jsonImage.get(2)).intValue();
 			name = new File(imageURL.getPath().toString()).getName().toString();
 			type = name!=null&&name.contains(".")?name.substring(name.lastIndexOf(".")+1):"";
 			
-			JSONArray jsonThumbnail = (JSONArray)jsonArray.get(2);
+			JSONArray jsonThumbnail = (JSONArray)((JSONArray)jsonArrayAux.get(1)).get(2);
 			thumbnailURL = new URL(jsonThumbnail.get(0).toString());
 			thumbnailHeight = ((Long)jsonThumbnail.get(1)).intValue();
 			thumbnailWidth = ((Long)jsonThumbnail.get(2)).intValue();
 			thumbnailName = new File(thumbnailURL.getPath().toString()).getName().toString();
 			thumbnailType = name!=null&&name.contains(".")?name.substring(name.lastIndexOf(".")+1):"";
 			
-			rgbInfo = (String)jsonArray.get(6);
-			
-//			HashMap jsonImgData = (HashMap)jsonArray.get(22);
-////			JSONArray jsonImgDataMain = (JSONArray)jsonImgData.get("2008");
-//			JSONArray jsonImgDataMain = (JSONArray)new ArrayList(jsonImgData.values()).get(0);
-//			imgHash = jsonImgDataMain.get(1).toString();
-//			siteURL = new URL(jsonImgDataMain.get(2).toString());
-//
-//			imgSiteDesc = jsonImgDataMain.get(3).toString();
-//			imgSiteName = jsonImgDataMain.get(12).toString();
-//			imgSiteDomain = jsonImgDataMain.get(17).toString();
+			rgbInfo = (String)((JSONArray)jsonArrayAux.get(1)).get(6);
+
 		} catch (MalformedURLException mue) {
 			logger.error("Malformed URL:"+mue.getMessage()); // + jsonImgDataMain.get(2).toString());
 		} catch (Exception e) {

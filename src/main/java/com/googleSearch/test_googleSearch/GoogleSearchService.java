@@ -27,7 +27,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 /**
  * source:https://stackoverflow.com/questions/40181330/google-search-using-java-programatically
  */
-public class GoogleSearchService {
+public class GoogleSearchService {
+
 //	private final static String PROXY_HOST = "172.18.100.15"; 
 //	private final static Integer PROXY_PORT = new Integer(18717);
 	private final static String PROXY_HOST = null; 
@@ -74,7 +75,7 @@ public class GoogleSearchService {
 		}
 	}
 	
-    public void searchGoogle(List<String> keywords){
+    private void searchGoogle(List<String> keywords){
         try {
             ObjectMapper mapper = new ObjectMapper();
             
